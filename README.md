@@ -13,6 +13,19 @@ npm install
 npm run dev
 ```
 
+
+## Truffle
+
+[Truffle Framework](http://truffleframework.com/) is used as Ethereum development framework.
+
+``` bash
+# Compile the contracts
+truffle compile
+
+# Run the migrations
+truffle migrate
+```
+
 ## Running your own node
 
 By default the prototype uses rinkeby test network, where the contract is deployed. (https://rinkeby.etherscan.io/address/0x12340385532F2c1da854326B09DE458fC20FfF33)
