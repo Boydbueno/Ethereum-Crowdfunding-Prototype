@@ -38,8 +38,8 @@ contract SolarParkFunding {
     balanceOf[msg.sender] += amount;
     value += amount;
 
-    // SolarToken token = SolarToken(tokenAddress);
-    // token.transfer(msg.sender, 1);
+    SolarToken token = SolarToken(tokenAddress);
+    token.transfer(msg.sender, 1);
 
     FundAdded(msg.sender, amount);
   }
@@ -52,8 +52,8 @@ contract SolarParkFunding {
     balanceOf[msg.sender] += amount;
     value += amount;
 
-    // SolarToken token = SolarToken(tokenAddress);
-    // token.transfer(msg.sender, 1);
+    SolarToken token = SolarToken(tokenAddress);
+    token.transfer(msg.sender, 1);
 
     FundAdded(msg.sender, amount);
   }

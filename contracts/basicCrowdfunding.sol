@@ -19,8 +19,8 @@ contract BasicCrowdfunding {
     
     function BasicCrowdfunding(address ifSuccessfulSendTo, uint goalInEther, uint maxEther) public {
 	    beneficiary = ifSuccessfulSendTo;
-	    goal = goalInEther * 1 ether;
-	    max = maxEther * 1 ether;
+	    goal = goalInEther;
+	    max = maxEther;
 
 	    // Todo: Can we make sure that the max is more then the goal?
 	}
