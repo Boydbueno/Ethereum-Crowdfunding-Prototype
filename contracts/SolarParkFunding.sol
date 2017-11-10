@@ -1,12 +1,6 @@
 pragma solidity ^0.4.15;
 
-import 'zeppelin-solidity/contracts/token/BasicToken.sol';
-
-contract SolarToken is BasicToken {
-  function SolarToken(uint256 _totalSupply) public {
-    totalSupply = _totalSupply;
-  }
-}
+import './SolarToken.sol';
 
 /**
  * @title SolarParkFunding
@@ -17,14 +11,14 @@ contract SolarParkFunding {
 
   mapping (address => uint256) public balanceOf;
 
-  uint256 public tokenAddress;
+  address public tokenAddress;
   // Goal is also the max
   uint public goal;
   uint public min;
 
   event FundAdded(address backer, uint amount);
 
-  function SolarParkFunding(uint256 tokenAddr, uint goalInWei, uint minWei) public {
+  function SolarParkFunding(address tokenAddr, uint goalInWei, uint minWei) public {
     tokenAddress = tokenAddr;
     goal = goalInWei;
     min = minWei;
@@ -39,7 +33,7 @@ contract SolarParkFunding {
     value += amount;
 
     SolarToken token = SolarToken(tokenAddress);
-    token.transfer(msg.sender, 1);
+    token.award(msg.sender, 1);
 
     FundAdded(msg.sender, amount);
   }
@@ -53,7 +47,7 @@ contract SolarParkFunding {
     value += amount;
 
     SolarToken token = SolarToken(tokenAddress);
-    token.transfer(msg.sender, 1);
+    token.award(msg.sender, 1);
 
     FundAdded(msg.sender, amount);
   }

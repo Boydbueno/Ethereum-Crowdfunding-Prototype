@@ -108,10 +108,20 @@ export default {
       this.web3Contract = new window.web3.eth.Contract(CrowdFunding.abi, this.contract.address)
 
       this._updateContract()
-    })
 
-    SolarTokenContract.deployed().then((instance) => {
-      console.log(instance)
+      SolarTokenContract.deployed().then((instance) => {
+        console.log(instance)
+
+        instance.balanceOf.call(this.account, { from: this.account }).then((result) => {
+          console.log('Tokens', result.toNumber())
+        })
+
+        console.log('Account', this.account)
+
+        instance.totalSupply.call().then((result) => {
+          console.log('Total Supply', result.toNumber())
+        })
+      })
     })
   },
 
@@ -164,6 +174,10 @@ export default {
 
       this.contract.value.call().then((result) => {
         this.contractProps.value = result
+      })
+
+      this.contract.tokenAddress.call().then((result) => {
+        console.log(result)
       })
     }
 
