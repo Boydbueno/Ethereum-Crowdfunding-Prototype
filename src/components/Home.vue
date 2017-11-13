@@ -1,6 +1,14 @@
 <template>
   <div>
 
+    <section class="metamask-overlay" v-if="!isMetamaskInstalled">
+      <h1>Please install metamask to get started!</h1>
+    </section>
+
+    <section class="metamask-overlay">
+      <h1>Please login to metamask</h1>
+    </section>
+
     <section class="account">
       <header>
         <select v-if="accounts.length > 1" v-model="account">
@@ -14,7 +22,7 @@
     </section>
 
     <section class="contract">
-      <header>{{ contractProps.address }}</header>
+      <header>{{ this.$store.state.crowdFundingContract.address }}</header>
       <section class="info">
         Goal: {{ goal }} ETH<br />
         Value: {{ value }} ETH<br />
@@ -31,124 +39,111 @@
 
 <script>
 import Web3 from 'web3'
-import BigNumber from 'bignumber.js'
 import contract from 'truffle-contract'
 
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
+
+import contractStore from '../contractStore.js'
 
 export default {
   name: 'Home',
 
   data () {
     return {
-      useLocalNode: false,
       accounts: [],
       account: null,
       fundAmountInEther: 0,
-      wei: null,
-      contractProps: {
-        address: '',
-        goal: new BigNumber(0),
-        value: new BigNumber(0)
-      }
-      // contract, reactivity breaks assignment
+      wei: null
     }
   },
 
   computed: {
+    isMetamaskInstalled () {
+      return Web3.givenProvider !== null && Web3.givenProvider.isMetaMask === true
+    },
+
     ether () {
-      return window.web3.utils.fromWei(this.wei || 0, 'ether')
+      return Web3.utils.fromWei(this.wei || 0, 'ether')
     },
 
     goal () {
-      return window.web3.utils.fromWei(this.contractProps.goal.toNumber() || 0, 'ether')
+      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.goal.toNumber() || 0, 'ether')
     },
 
     value () {
-      return window.web3.utils.fromWei(this.contractProps.value.toNumber() || 0, 'ether')
+      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.value.toNumber() || 0, 'ether')
     },
 
     fundAmountInWei () {
-      return window.web3.utils.toWei(parseFloat(this.fundAmountInEther))
+      return Web3.utils.toWei(parseFloat(this.fundAmountInEther))
     }
   },
 
   created () {
-    let CrowdFundingContract = contract(CrowdFunding)
-    CrowdFundingContract.setProvider(Web3.givenProvider)
+    if (!this.isMetamaskInstalled) return
 
-    let SolarTokenContract = contract(SolarToken)
-    SolarTokenContract.setProvider(Web3.givenProvider)
+    window.web3 = new Web3(Web3.givenProvider)
 
-    if (Web3.givenProvider && !this.useLocalNode) {
-      window.web3 = new Web3(Web3.givenProvider)
-      console.log('Given provider', Web3.givenProvider)
-    } else {
-      window.web3 = new Web3('ws://localhost:8546')
-      console.log('Connected to own node')
-    }
-
-    CrowdFundingContract.deployed().then((instance) => {
-      console.log(instance)
-      this.contract = instance
-      this.contractProps.address = this.contract.address
-
+    this.retrieveContractInformation().then(() => {
+      // Check if user is logged into metamask
       window.web3.eth.getAccounts().then((accounts) => {
+        if (accounts.length === 0) return
+
+        console.log(accounts)
         this.accounts = accounts
         this.account = accounts[0]
 
-        return window.web3.eth.getBalance(this.account)
-      }).then((result) => {
-        this.wei = result
-      }).catch((error) => {
-        console.log(error)
-      })
-
-      this.web3Contract = new window.web3.eth.Contract(CrowdFunding.abi, this.contract.address)
-
-      this._updateContract()
-
-      SolarTokenContract.deployed().then((instance) => {
-        console.log(instance)
-
-        instance.balanceOf.call(this.account, { from: this.account }).then((result) => {
-          console.log('Tokens', result.toNumber())
-        })
-
-        console.log('Account', this.account)
-
-        instance.totalSupply.call().then((result) => {
-          console.log('Total Supply', result.toNumber())
-        })
+        this.getUserInformation()
       })
     })
   },
 
   methods: {
+    retrieveContractInformation () {
+      let CrowdFundingContract = contract(CrowdFunding)
+      CrowdFundingContract.setProvider(Web3.givenProvider)
+
+      let SolarTokenContract = contract(SolarToken)
+      SolarTokenContract.setProvider(Web3.givenProvider)
+
+      let crowdFundingContract = CrowdFundingContract.deployed().then((instance) => {
+        // Get all info from this contract
+        contractStore.crowdFundingContract = instance
+        this.$store.commit('setCrowdFundingContractAddress', instance.address)
+        this._updateCrowdFundingContract()
+      })
+
+      let solarTokenContract = SolarTokenContract.deployed().then((instance) => {
+        // Get all info from this contract
+        contractStore.solarTokenContract = instance
+        this.$store.commit('setSolarTokenContractAddress', instance.address)
+        this._updateSolarTokenContract()
+      })
+
+      return Promise.all([crowdFundingContract, solarTokenContract])
+    },
+
+    getUserInformation () {
+      window.web3.eth.getBalance(this.account).then((result) => {
+        this.wei = result
+      }).catch((error) => {
+        console.log(error)
+      })
+
+      contractStore.crowdFundingContract.balanceOf.call(this.account, { from: this.account }).then((result) => {
+        this.$store.commit('setCrowdFundingContractDeposit', result)
+      })
+
+      contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then((result) => {
+        this.$store.commit('setSolarTokenShare', result)
+      })
+    },
 
     fundOneEther () {
-      // window.web3.eth.sendTransaction({
-      //   from: this.account,
-      //   to: this.contract.address,
-      //   value: this.fundAmountInWei
-      // }, (error, result) => {
-      //   if (error) console.log(error)
-      //   console.log(result)
-      // }).on('transactionHash', (hash) => {
-      //   console.log(hash)
-      // }).on('receipt', (receipt) => {
-      //   console.log(receipt)
-      // }).on('confirmation', (number, object) => {
-      //   console.log(number)
-      //   console.log(object)
-      // }).on('error', (error) => {
-      //   console.error(error)
-      // })
-
-      this.contract.contribute({
+      contractStore.crowdFundingContract.contribute({
         from: this.account,
-        to: this.contract.address,
+        to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
         console.log(result)
@@ -158,7 +153,7 @@ export default {
     },
 
     withdrawAll () {
-      this.contract.withdraw({
+      contractStore.crowdFundingContract.withdraw({
         from: this.account
       }).then((result) => {
         console.log(result)
@@ -167,20 +162,13 @@ export default {
       })
     },
 
-    _updateContract () {
-      this.contract.goal.call().then((result) => {
-        this.contractProps.goal = result
-      })
+    _updateCrowdFundingContract () {
+      this.$store.dispatch('updateCrowdFundingContractInformation')
+    },
 
-      this.contract.value.call().then((result) => {
-        this.contractProps.value = result
-      })
-
-      this.contract.tokenAddress.call().then((result) => {
-        console.log(result)
-      })
+    _updateSolarTokenContract () {
+      this.$store.dispatch('updateSolarTokenContractInformation')
     }
-
   }
 }
 </script>
