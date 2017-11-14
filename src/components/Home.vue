@@ -5,8 +5,12 @@
       <h1>Please install metamask to get started!</h1>
     </section>
 
-    <section class="metamask-overlay">
+    <section class="metamask-overlay" v-if="!isLoggedIntoMetamask">
       <h1>Please login to metamask</h1>
+    </section>
+
+    <section class="metamask-wrong-network" v-if="!isConnectedToCorrectNetwork">
+      <h1>Connected to wrong network</h1>
     </section>
 
     <section class="account">
@@ -51,6 +55,9 @@ export default {
 
   data () {
     return {
+      requiredNetwork: ['private'],
+      connectedNetwork: '',
+      isLoggedIntoMetamask: false,
       accounts: [],
       account: null,
       fundAmountInEther: 0,
@@ -61,6 +68,10 @@ export default {
   computed: {
     isMetamaskInstalled () {
       return Web3.givenProvider !== null && Web3.givenProvider.isMetaMask === true
+    },
+
+    isConnectedToCorrectNetwork () {
+      return this.requiredNetwork.includes(this.connectedNetwork)
     },
 
     ether () {
@@ -85,21 +96,47 @@ export default {
 
     window.web3 = new Web3(Web3.givenProvider)
 
-    this.retrieveContractInformation().then(() => {
-      // Check if user is logged into metamask
-      window.web3.eth.getAccounts().then((accounts) => {
-        if (accounts.length === 0) return
-
-        console.log(accounts)
-        this.accounts = accounts
-        this.account = accounts[0]
-
-        this.getUserInformation()
-      })
-    })
+    this.initialize()
   },
 
   methods: {
+    initialize () {
+      // Check if user is logged into metamask
+      let a = window.web3.eth.getAccounts().then(this.storeUserAccounts)
+
+      let b = window.web3.eth.net.getNetworkType().then((result) => {
+        this.connectedNetwork = result
+
+        if (!this.isConnectedToCorrectNetwork) {
+          // Todo: Only repeat this part. But does the trick for now
+          setTimeout(this.initialize, 1000)
+          return Promise.reject('Is not connected to correct network')
+        }
+
+        return this.retrieveContractInformation()
+      })
+
+      Promise.all([a, b]).then(this.getUserBalances).catch((err) => {
+        console.log(err)
+      })
+    },
+
+    storeUserAccounts (accounts) {
+      if (accounts.length === 0) {
+        // Todo: Only repeat this part. But does the trick for now
+        setTimeout(this.initialize, 1000)
+        return Promise.reject('Is not logged in')
+      }
+
+      this.isLoggedIntoMetamask = true
+      this.accounts = accounts
+      this.account = accounts[0]
+
+      this.$store.commit('setAccount')
+      console.log('Got accounts')
+      return Promise.resolve()
+    },
+
     retrieveContractInformation () {
       let CrowdFundingContract = contract(CrowdFunding)
       CrowdFundingContract.setProvider(Web3.givenProvider)
@@ -124,7 +161,7 @@ export default {
       return Promise.all([crowdFundingContract, solarTokenContract])
     },
 
-    getUserInformation () {
+    getUserBalances () {
       window.web3.eth.getBalance(this.account).then((result) => {
         this.wei = result
       }).catch((error) => {
