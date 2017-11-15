@@ -8,13 +8,16 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    account: '',
+    wei: new BigNumber(0),
     crowdFundingContract: {
       address: '',
       goal: new BigNumber(0),
       value: new BigNumber(0),
       tokenAddress: '',
       min: 0,
-      deposit: 0
+      deposit: 0,
+      participantsCount: 0
     },
     solarTokenContract: {
       address: '',
@@ -36,6 +39,10 @@ export default new Vuex.Store({
       state.crowdFundingContract.value = value
     },
 
+    increaseCrowdFundingValue (state, payload) {
+      state.crowdFundingContract.value = state.crowdFundingContract.value.add(payload.wei)
+    },
+
     setCrowdFundingContractTokenAddress (state, tokenAddress) {
       state.crowdFundingContract.tokenAddress = tokenAddress
     },
@@ -48,6 +55,10 @@ export default new Vuex.Store({
       state.crowdFundingContract.deposit = deposit
     },
 
+    setCrowdFundingContractParticipantsCount (state, participantsCount) {
+      state.crowdFundingContract.participantsCount = participantsCount
+    },
+
     setSolarTokenContractAddress (state, address) {
       state.solarTokenContract.address = address
     },
@@ -58,34 +69,46 @@ export default new Vuex.Store({
 
     setSolarTokenShare (state, share) {
       state.solarTokenContract.share = share
+    },
+
+    setAccount (state, account) {
+      state.account = account
+    },
+
+    setWei (state, wei) {
+      state.wei = wei
     }
   },
 
   actions: {
-    updateCrowdFundingContractInformation (context) {
+    updateCrowdFundingContractInformation ({ commit }) {
       // Todo: contractStore should have get methods that return a promise
 
       // Todo: Perhaps chain all these together and when all done make one commit
-      contractStore.crowdFundingContract.goal.call().then((result) => {
-        context.commit('setCrowdFundingContractGoal', result)
+      contractStore.crowdFundingContract.goal.call().then(result => {
+        commit('setCrowdFundingContractGoal', result)
       })
 
-      contractStore.crowdFundingContract.value.call().then((result) => {
-        context.commit('setCrowdFundingContractValue', result)
+      contractStore.crowdFundingContract.value.call().then(result => {
+        commit('setCrowdFundingContractValue', result)
       })
 
-      contractStore.crowdFundingContract.tokenAddress.call().then((result) => {
-        context.commit('setCrowdFundingContractTokenAddress', result)
+      contractStore.crowdFundingContract.tokenAddress.call().then(result => {
+        commit('setCrowdFundingContractTokenAddress', result)
       })
 
-      contractStore.crowdFundingContract.min.call().then((result) => {
-        context.commit('setCrowdFundingContractMin', result)
+      contractStore.crowdFundingContract.min.call().then(result => {
+        commit('setCrowdFundingContractMin', result)
+      })
+
+      contractStore.crowdFundingContract.participantsCount.call().then(result => {
+        commit('setCrowdFundingContractParticipantsCount', result)
       })
     },
 
-    updateSolarTokenContractInformation (context) {
-      contractStore.solarTokenContract.totalSupply.call().then((result) => {
-        context.commit('setSolarTokenTotalSupply', result)
+    updateSolarTokenContractInformation ({ commit }) {
+      contractStore.solarTokenContract.totalSupply.call().then(result => {
+        commit('setSolarTokenTotalSupply', result)
       })
     }
   }

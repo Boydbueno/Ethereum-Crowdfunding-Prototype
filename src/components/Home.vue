@@ -15,18 +15,14 @@
 
     <section class="account">
       <header>
-        <select v-if="accounts.length > 1" v-model="account">
-          <option v-for="account in accounts" :value="account">
-            {{ account }}
-          </option>
-        </select>
-        <template v-else>{{ account }}</template>
+        {{ account }}
+        <canvas ref="qrcode"></canvas>
       </header>
-      Ether: {{ ether }} <br />
+      Ether: {{ balance }} <br />
     </section>
 
     <section class="contract">
-      <header>{{ this.$store.state.crowdFundingContract.address }}</header>
+      <header>{{ crowdFundingContractAddress }}</header>
       <section class="info">
         Goal: {{ goal }} ETH<br />
         Value: {{ value }} ETH<br />
@@ -43,6 +39,7 @@
 
 <script>
 import Web3 from 'web3'
+import QRCode from 'qrcode'
 import contract from 'truffle-contract'
 
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
@@ -55,27 +52,36 @@ export default {
 
   data () {
     return {
-      requiredNetwork: ['private'],
+      requiredNetwork: ['private', 'ropsten'],
       connectedNetwork: '',
       isLoggedIntoMetamask: false,
-      accounts: [],
-      account: null,
-      fundAmountInEther: 0,
-      wei: null
+      fundAmountInEther: 0
     }
   },
 
   computed: {
+    account () {
+      return this.$store.state.account
+    },
+
+    wei () {
+      return this.$store.state.wei
+    },
+
+    balance () {
+      return Web3.utils.fromWei(this.wei || 0, 'ether')
+    },
+
+    crowdFundingContractAddress () {
+      return this.$store.state.crowdFundingContract.address
+    },
+
     isMetamaskInstalled () {
       return Web3.givenProvider !== null && Web3.givenProvider.isMetaMask === true
     },
 
     isConnectedToCorrectNetwork () {
       return this.requiredNetwork.includes(this.connectedNetwork)
-    },
-
-    ether () {
-      return Web3.utils.fromWei(this.wei || 0, 'ether')
     },
 
     goal () {
@@ -91,10 +97,22 @@ export default {
     }
   },
 
-  created () {
+  mounted () {
     if (!this.isMetamaskInstalled) return
 
     window.web3 = new Web3(Web3.givenProvider)
+
+    this.$watch('account', newAccount => {
+      QRCode.toCanvas(this.$refs.qrcode, newAccount, (err) => {
+        if (err) console.log(err)
+      })
+    })
+
+    // We keep polling for balance changes
+    // We cannot use events because of Web3 1.0
+    setInterval(() => {
+      this.getAccounts().then(this.getAccountBalance)
+    }, 1000)
 
     this.initialize()
   },
@@ -102,9 +120,9 @@ export default {
   methods: {
     initialize () {
       // Check if user is logged into metamask
-      let a = window.web3.eth.getAccounts().then(this.storeUserAccounts)
+      let a = this.getAccounts()
 
-      let b = window.web3.eth.net.getNetworkType().then((result) => {
+      let b = window.web3.eth.net.getNetworkType().then(result => {
         this.connectedNetwork = result
 
         if (!this.isConnectedToCorrectNetwork) {
@@ -116,8 +134,8 @@ export default {
         return this.retrieveContractInformation()
       })
 
-      Promise.all([a, b]).then(this.getUserBalances).catch((err) => {
-        console.log(err)
+      Promise.all([a, b]).then(this.getUserBalances).catch(error => {
+        console.log(error)
       })
     },
 
@@ -129,11 +147,11 @@ export default {
       }
 
       this.isLoggedIntoMetamask = true
-      this.accounts = accounts
-      this.account = accounts[0]
 
-      this.$store.commit('setAccount')
-      console.log('Got accounts')
+      if (this.$store.state.account !== accounts[0]) {
+        this.$store.commit('setAccount', accounts[0])
+      }
+
       return Promise.resolve()
     },
 
@@ -144,14 +162,14 @@ export default {
       let SolarTokenContract = contract(SolarToken)
       SolarTokenContract.setProvider(Web3.givenProvider)
 
-      let crowdFundingContract = CrowdFundingContract.deployed().then((instance) => {
+      let crowdFundingContract = CrowdFundingContract.deployed().then(instance => {
         // Get all info from this contract
         contractStore.crowdFundingContract = instance
         this.$store.commit('setCrowdFundingContractAddress', instance.address)
         this._updateCrowdFundingContract()
       })
 
-      let solarTokenContract = SolarTokenContract.deployed().then((instance) => {
+      let solarTokenContract = SolarTokenContract.deployed().then(instance => {
         // Get all info from this contract
         contractStore.solarTokenContract = instance
         this.$store.commit('setSolarTokenContractAddress', instance.address)
@@ -162,17 +180,13 @@ export default {
     },
 
     getUserBalances () {
-      window.web3.eth.getBalance(this.account).then((result) => {
-        this.wei = result
-      }).catch((error) => {
-        console.log(error)
-      })
+      this.getAccountBalance()
 
-      contractStore.crowdFundingContract.balanceOf.call(this.account, { from: this.account }).then((result) => {
+      contractStore.crowdFundingContract.balanceOf.call(this.account, { from: this.account }).then(result => {
         this.$store.commit('setCrowdFundingContractDeposit', result)
       })
 
-      contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then((result) => {
+      contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then(result => {
         this.$store.commit('setSolarTokenShare', result)
       })
     },
@@ -183,19 +197,26 @@ export default {
         to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
+        this.$store.commit('increaseCrowdFundingValue', { wei: this.fundAmountInWei })
         console.log(result)
       }).catch((e) => {
         console.log(e)
       })
     },
 
-    withdrawAll () {
-      contractStore.crowdFundingContract.withdraw({
-        from: this.account
-      }).then((result) => {
-        console.log(result)
-      }).catch((e) => {
-        console.log(e)
+    getAccounts () {
+      return window.web3.eth.getAccounts().then(this.storeUserAccounts)
+    },
+
+    getAccountBalance () {
+      if (this.account === '') return
+
+      return window.web3.eth.getBalance(this.account).then(result => {
+        if (this.wei === result) return
+
+        this.$store.commit('setWei', result)
+      }).catch((error) => {
+        console.log(error)
       })
     },
 

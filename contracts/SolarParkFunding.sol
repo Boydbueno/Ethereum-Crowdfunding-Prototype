@@ -16,6 +16,8 @@ contract SolarParkFunding {
   uint public goal;
   uint public min;
 
+  uint public participantsCount;
+
   event FundAdded(address backer, uint amount);
 
   function SolarParkFunding(address tokenAddr, uint goalInWei, uint minWei) public {
@@ -41,6 +43,10 @@ contract SolarParkFunding {
   function contribute() payable public {
     require(msg.value >= min);
     require(value + msg.value <= goal);
+
+    if (balanceOf[msg.sender] == 0) {
+      participantsCount++;
+    }
 
     uint amount = msg.value;
     balanceOf[msg.sender] += amount;
