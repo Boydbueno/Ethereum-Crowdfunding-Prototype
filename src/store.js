@@ -102,7 +102,7 @@ export default new Vuex.Store({
       })
 
       contractStore.crowdFundingContract.participantsCount.call().then(result => {
-        commit('setCrowdFundingContractParticipantsCount', result)
+        commit('setCrowdFundingContractParticipantsCount', parseInt(result))
       })
     },
 

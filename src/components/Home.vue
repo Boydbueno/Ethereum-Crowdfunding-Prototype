@@ -26,6 +26,7 @@
       <section class="info">
         Goal: {{ goal }} ETH<br />
         Value: {{ value }} ETH<br />
+        Participants: {{ crowdFundingContract.participantsCount }}
       </section>
 
       <section class="actions">
@@ -66,6 +67,10 @@ export default {
 
     wei () {
       return this.$store.state.wei
+    },
+
+    crowdFundingContract () {
+      return this.$store.state.crowdFundingContract
     },
 
     balance () {
