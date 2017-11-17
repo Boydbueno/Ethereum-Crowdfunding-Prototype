@@ -1,6 +1,6 @@
 module.exports = {
   crowdFunding: {
     goal: 14,
-    steps: 25
+    steps: 0.1
   }
 }

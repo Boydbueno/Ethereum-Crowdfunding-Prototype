@@ -6,7 +6,7 @@ const SolarParkFunding = artifacts.require('./SolarParkFunding.sol')
 const SolarToken = artifacts.require('./SolarToken.sol')
 
 const goal = config.crowdFunding.goal * ether
-const steps = config.crowdFunding.goal / config.crowdFunding.steps * ether
+const steps = config.crowdFunding.steps * ether
 
 const totalTokens = goal / steps
 
