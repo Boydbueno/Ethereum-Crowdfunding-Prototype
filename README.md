@@ -13,12 +13,21 @@ npm install
 npm run dev
 ```
 
+On Windows you'll need to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools)
+
+``` bash
+# Install windows-build-tools from an elevated PowerShell or CMD.exe (run as Administrator).
+npm install --global --production windows-build-tools
+```
 
 ## Truffle
 
 [Truffle Framework](http://truffleframework.com/) is used as Ethereum development framework.
 
 ``` bash
+# Install Truffle
+npm install -g truffle
+
 # Compile the contracts
 truffle compile
 

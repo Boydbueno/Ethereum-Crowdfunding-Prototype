@@ -1,31 +1,53 @@
 <template>
   <div>
+    <div class="overlay-background" v-if="isOverlayShown"></div>
+    <section class="overlay metamask-install" v-if="shouldShowInstallMetamaskPrompt">
+      <h1>Install metamask to get started</h1>
+      <p>
+        To make use of this application, please install the <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">MetaMask Chrome extension</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">FireFox addon</a>.
+      </p>
 
-    <section class="metamask-overlay" v-if="!isMetamaskInstalled">
-      <h1>Please install metamask to get started!</h1>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/6Gf_kRE4MJU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+
+      <p>
+        After installation, please <a class="refresh" href="#" @click="refresh">refresh this page</a>.
+      </p>
     </section>
 
-    <section class="metamask-overlay" v-if="!isLoggedIntoMetamask">
+    <section class="overlay metamask-not-logged-in" v-if="shouldShowLoginMetaMaskPrompt">
       <h1>Please login to metamask</h1>
+      <p>
+        Follow the instructions after clicking the MetaMask icon.
+      </p>
+      <img src="../assets/images/metamaskExtension.jpg" />
     </section>
 
-    <section class="metamask-wrong-network" v-if="!isConnectedToCorrectNetwork">
+    <section class="overlay metamask-wrong-network" v-if="shouldShowConnectNetworkMetaMaskPrompt">
       <h1>Connected to wrong network</h1>
+      <p>
+        You're currently connected to '{{ connectedNetwork }}', please connect to {{ requiredNetworkString }} using the network selection in MetaMask.
+      </p>
+      <img src="../assets/images/metamaskNetworkSelection.jpg" />
     </section>
 
     <section class="account">
       <header>
-        {{ account }}
-        <canvas ref="qrcode"></canvas>
+        <h1>Your account</h1>
       </header>
-      Ether: {{ balance }} <br />
+      <div>Address: {{ account }}</div>
+      <canvas ref="qrcode"></canvas>
+      <div>Balance: {{ balance }} ETH </div>
     </section>
 
     <section class="contract">
-      <header>{{ crowdFundingContractAddress }}</header>
+      <header>
+        <h1>Zonnepanelen Maassilo Rotterdam</h1>
+      </header>
       <section class="info">
+        <div>Address: {{ crowdFundingContractAddress }}</div>
         Goal: {{ goal }} ETH<br />
         Value: {{ value }} ETH<br />
+        <progress :value="value" :max="goal" />
         Participants: {{ crowdFundingContract.participantsCount }}
       </section>
 
@@ -61,6 +83,30 @@ export default {
   },
 
   computed: {
+    isOverlayShown () {
+      return this.shouldShowInstallMetamaskPrompt || this.shouldShowLoginMetaMaskPrompt || this.shouldShowConnectNetworkMetaMaskPrompt
+    },
+
+    requiredNetworkString () {
+      if (this.requiredNetwork.length === 1) {
+        return this.requiredNetwork[0]
+      }
+
+      return '\'' + this.requiredNetwork.join('\' or \'') + '\''
+    },
+
+    shouldShowInstallMetamaskPrompt () {
+      return !this.isMetamaskInstalled
+    },
+
+    shouldShowLoginMetaMaskPrompt () {
+      return this.isMetamaskInstalled && !this.isLoggedIntoMetamask
+    },
+
+    shouldShowConnectNetworkMetaMaskPrompt () {
+      return this.isMetamaskInstalled && this.isLoggedIntoMetamask && !this.isConnectedToCorrectNetwork
+    },
+
     account () {
       return this.$store.state.account
     },
@@ -113,26 +159,28 @@ export default {
       })
     })
 
-    // We keep polling for balance changes
+    this.initialize()
+
+    // We keep polling for changes
     // We cannot use events because of Web3 1.0
     setInterval(() => {
-      this.getAccounts().then(this.getAccountBalance)
-    }, 1000)
-
-    this.initialize()
+      this.initialize()
+    }, 2000)
   },
 
   methods: {
+    refresh () {
+      location.reload()
+    },
+
     initialize () {
       // Check if user is logged into metamask
       let a = this.getAccounts()
-
       let b = window.web3.eth.net.getNetworkType().then(result => {
         this.connectedNetwork = result
 
         if (!this.isConnectedToCorrectNetwork) {
           // Todo: Only repeat this part. But does the trick for now
-          setTimeout(this.initialize, 1000)
           return Promise.reject('Is not connected to correct network')
         }
 
@@ -147,7 +195,6 @@ export default {
     storeUserAccounts (accounts) {
       if (accounts.length === 0) {
         // Todo: Only repeat this part. But does the trick for now
-        setTimeout(this.initialize, 1000)
         return Promise.reject('Is not logged in')
       }
 
@@ -185,7 +232,9 @@ export default {
     },
 
     getUserBalances () {
-      this.getAccountBalance()
+      this.getAccountBalance().catch(error => {
+        console.log(error)
+      })
 
       contractStore.crowdFundingContract.balanceOf.call(this.account, { from: this.account }).then(result => {
         this.$store.commit('setCrowdFundingContractDeposit', result)
@@ -236,6 +285,29 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  $primary-color: #FFFFFF;
+  $secondary-color: #FF9900;
+  $font-color-dark: #000000;
+  $font-color-light: #FFFFFF;
 
+  .overlay-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .overlay {
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    padding: 15px;
+    background-color: white;
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+  }
 </style>
