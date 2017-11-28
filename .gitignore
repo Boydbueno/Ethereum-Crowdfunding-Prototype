@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 test/unit/coverage
 
+build/contracts
+
 # Editor directories and files
 .idea
 *.suo
