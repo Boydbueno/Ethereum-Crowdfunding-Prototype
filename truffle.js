@@ -1,5 +1,5 @@
 let HDWalletProvider = require('truffle-hdwallet-provider')
-let config = require('./config')
+let env = require('./config/dev.env')
 
 module.exports = {
   networks: {
@@ -10,7 +10,7 @@ module.exports = {
       gas: 4600000
     },
     ropsten: {
-      provider: new HDWalletProvider(config.dev.env.MNEMONIC, 'https://ropsten.infura.io/'),
+      provider: new HDWalletProvider(env.MNEMONIC, 'https://ropsten.infura.io/'),
       network_id: 3,
       gas: 4600000
     }

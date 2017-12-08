@@ -181,7 +181,7 @@ export default {
 
         if (!this.isConnectedToCorrectNetwork) {
           // Todo: Only repeat this part. But does the trick for now
-          return Promise.reject('Is not connected to correct network')
+          return Promise.reject(new Error('Is not connected to correct network'))
         }
 
         return this.retrieveContractInformation()
@@ -195,7 +195,7 @@ export default {
     storeUserAccounts (accounts) {
       if (accounts.length === 0) {
         // Todo: Only repeat this part. But does the trick for now
-        return Promise.reject('Is not logged in')
+        return Promise.reject(new Error('Is not logged in'))
       }
 
       this.isLoggedIntoMetamask = true
