@@ -8,6 +8,8 @@ test/unit/coverage
 
 build/contracts
 
+secret.env.js
+
 # Editor directories and files
 .idea
 *.suo
