@@ -25,7 +25,7 @@
     <section class="overlay metamask-wrong-network" v-if="shouldShowConnectNetworkMetaMaskPrompt">
       <h1>Connected to wrong network</h1>
       <p>
-        You're currently connected to '{{ connectedNetwork }}', please connect to {{ requiredNetworkString }} using the network selection in MetaMask.
+        You're currently connected to {{ connectedNetworkLabel }}, please connect to {{ requiredNetworkLabel }} by using the network selection in MetaMask.
       </p>
       <img src="../assets/images/metamaskNetworkSelection.jpg" />
     </section>
@@ -68,14 +68,16 @@ import contract from 'truffle-contract'
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
 
-import contractStore from '../contractStore.js'
+import contractStore from '../contractStore'
+
+import config from '../config'
 
 export default {
   name: 'Home',
 
   data () {
     return {
-      requiredNetwork: ['private', 'ropsten'],
+      requiredNetworks: ['ropsten', 'private'],
       connectedNetwork: '',
       isLoggedIntoMetamask: false,
       fundAmountInEther: 0
@@ -87,12 +89,20 @@ export default {
       return this.shouldShowInstallMetamaskPrompt || this.shouldShowLoginMetaMaskPrompt || this.shouldShowConnectNetworkMetaMaskPrompt
     },
 
-    requiredNetworkString () {
-      if (this.requiredNetwork.length === 1) {
-        return this.requiredNetwork[0]
+    connectedNetworkLabel () {
+      return config.networks[this.connectedNetwork]
+    },
+
+    requiredNetworkLabel () {
+      let requiredNetworks = this.requiredNetworks.filter(network => network !== 'private')
+
+      if (requiredNetworks.length === 1) {
+        return config.networks[requiredNetworks[0]]
       }
 
-      return '\'' + this.requiredNetwork.join('\' or \'') + '\''
+      let requiredNetworkLabels = requiredNetworks.map(network => config.networks[network])
+
+      return requiredNetworkLabels.join(' or ')
     },
 
     shouldShowInstallMetamaskPrompt () {
@@ -132,7 +142,7 @@ export default {
     },
 
     isConnectedToCorrectNetwork () {
-      return this.requiredNetwork.includes(this.connectedNetwork)
+      return this.requiredNetworks.includes(this.connectedNetwork)
     },
 
     goal () {
