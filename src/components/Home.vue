@@ -120,7 +120,7 @@ export default {
     },
 
     balance () {
-      return Web3.utils.fromWei(this.wei || 0, 'ether')
+      return Web3.utils.fromWei(this.wei.toString() || '0', 'ether')
     },
 
     crowdFundingContractAddress () {
@@ -136,11 +136,11 @@ export default {
     },
 
     goal () {
-      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.goal.toNumber() || 0, 'ether')
+      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.goal.toString() || '0', 'ether')
     },
 
     value () {
-      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.value.toNumber() || 0, 'ether')
+      return Web3.utils.fromWei(this.$store.state.crowdFundingContract.value.toString() || '0', 'ether')
     },
 
     fundAmountInWei () {
