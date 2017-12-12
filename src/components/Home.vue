@@ -27,7 +27,7 @@
       <p>
         You're currently connected to {{ connectedNetworkLabel }}, please connect to {{ requiredNetworkLabel }} by using the network selection in MetaMask.
       </p>
-      <img src="../assets/images/metamaskNetworkSelection.jpg" />
+      <img src="../assets/images/metamaskNetworkSelection.png" />
     </section>
 
     <section class="account">
@@ -65,12 +65,11 @@ import Web3 from 'web3'
 import QRCode from 'qrcode'
 import contract from 'truffle-contract'
 
-import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
-import SolarToken from '../../build/contracts/SolarToken.json'
-
+import config from '../config'
 import contractStore from '../contractStore'
 
-import config from '../config'
+import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
+import SolarToken from '../../build/contracts/SolarToken.json'
 
 export default {
   name: 'Home',
@@ -319,5 +318,9 @@ export default {
     padding: 15px;
     background-color: white;
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+  }
+
+  .metamask-install {
+    width: 560px;
   }
 </style>
