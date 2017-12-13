@@ -1,43 +1,30 @@
 <template>
   <div>
-    <div class="overlay-background" v-if="isOverlayShown"></div>
-    <section class="overlay metamask-install" v-if="shouldShowInstallMetamaskPrompt">
-      <h1>Install metamask to get started</h1>
+    <overlay :isVisible="shouldShowInstallMetamaskPrompt" title="Install metamask to get started">
       <p>
         To make use of this application, please install the <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">MetaMask Chrome extension</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">FireFox addon</a>.
       </p>
-
       <iframe width="560" height="315" src="https://www.youtube.com/embed/6Gf_kRE4MJU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
-
       <p>
         After installation, please <a class="refresh" href="#" @click="refresh">refresh this page</a>.
       </p>
-    </section>
+    </overlay>
 
-    <section class="overlay metamask-not-logged-in" v-if="shouldShowLoginMetaMaskPrompt">
-      <h1>Please login to metamask</h1>
+    <overlay :isVisible="shouldShowLoginMetaMaskPrompt" title="Please login to metamask">
       <p>
         Follow the instructions after clicking the MetaMask icon.
       </p>
       <img src="../assets/images/metamaskExtension.jpg" />
-    </section>
+    </overlay>
 
-    <section class="overlay metamask-wrong-network" v-if="shouldShowConnectNetworkMetaMaskPrompt">
-      <h1>Connected to wrong network</h1>
+    <overlay :isVisible="shouldShowConnectNetworkMetaMaskPrompt" title="Connected to the wrong network">
       <p>
         You're currently connected to {{ connectedNetworkLabel }}, please connect to {{ requiredNetworkLabel }} by using the network selection in MetaMask.
       </p>
       <img src="../assets/images/metamaskNetworkSelection.png" />
-    </section>
+    </overlay>
 
-    <section class="account">
-      <header>
-        <h1>Your account</h1>
-      </header>
-      <div>Address: {{ account }}</div>
-      <canvas ref="qrcode"></canvas>
-      <div>Balance: {{ balance }} ETH </div>
-    </section>
+    <account></account>
 
     <section class="contract">
       <header>
@@ -62,7 +49,6 @@
 
 <script>
 import Web3 from 'web3'
-import QRCode from 'qrcode'
 import contract from 'truffle-contract'
 
 import config from '../config'
@@ -71,8 +57,16 @@ import contractStore from '../contractStore'
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
 
+import Overlay from '@/components/Overlay'
+import Account from '@/components/Account'
+
 export default {
   name: 'Home',
+
+  components: {
+    'overlay': Overlay,
+    'account': Account
+  },
 
   data () {
     return {
@@ -161,12 +155,6 @@ export default {
     if (!this.isMetamaskInstalled) return
 
     window.web3 = new Web3(Web3.givenProvider)
-
-    this.$watch('account', newAccount => {
-      QRCode.toCanvas(this.$refs.qrcode, newAccount, (err) => {
-        if (err) console.log(err)
-      })
-    })
 
     this.initialize()
 
@@ -295,32 +283,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  $primary-color: #FFFFFF;
-  $secondary-color: #FF9900;
-  $font-color-dark: #000000;
-  $font-color-light: #FFFFFF;
 
-  .overlay-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
-  .overlay {
-    position: absolute;
-    width: 500px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    padding: 15px;
-    background-color: white;
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
-  }
-
-  .metamask-install {
-    width: 560px;
-  }
 </style>
