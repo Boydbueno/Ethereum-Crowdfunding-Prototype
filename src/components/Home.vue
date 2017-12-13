@@ -79,7 +79,7 @@ export default {
       requiredNetworks: ['ropsten', 'private'],
       connectedNetwork: '',
       isLoggedIntoMetamask: false,
-      fundAmountInEther: 0
+      fundAmountInEther: '0'
     }
   },
 
@@ -153,7 +153,7 @@ export default {
     },
 
     fundAmountInWei () {
-      return Web3.utils.toWei(parseFloat(this.fundAmountInEther))
+      return Web3.utils.toWei(this.fundAmountInEther)
     }
   },
 
