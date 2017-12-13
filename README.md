@@ -1,7 +1,11 @@
-# blockchain-prototype
+# Ethereum Prototype
 
-> A simple blockchain prototype build with Web3 and VueJS
-> Testing some very basic interaction with Smart Contracts
+> An Ethereum prototype build with Web3.js, Truffle and VueJS.
+> Testing some basic interactions with Smart Contracts
+
+## Demo
+
+[Prototype](https://boydbueno.github.io/blockchain-prototype/)
 
 ## Build Setup
 
@@ -26,7 +30,9 @@ On Windows you'll need to install [windows-build-tools](https://github.com/felix
 npm install --global --production windows-build-tools
 ```
 
-## Truffle
+Rename `config/secret.js.example` to `config.secret.js`. Add your mnemonic in here if you're planning on deploying to the Ropsten test network.
+
+### Truffle
 
 [Truffle Framework](http://truffleframework.com/) is used as Ethereum development framework.
 
@@ -37,6 +43,15 @@ npm install -g truffle
 # Compile the contracts
 truffle compile
 
-# Run the migrations
+# Run the migrations on your local node
 truffle migrate
+
+# Run the migrations on the ropsten test network
+truffle migrate --network ropsten
 ```
+
+### Ganache
+
+[Ganache](http://truffleframework.com/ganache/) is recommended as development node.
+
+Make sure to set the port to `8545` in Ganache or change the port in `truffle.js` to correspond with your development node.
