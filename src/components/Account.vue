@@ -1,14 +1,18 @@
 <template>
   <section class="account">
-    <header>
-      <h1>Your account</h1>
-    </header>
+    <iCard>
+      <p slot="title">Jouw account</p>
+      <iTooltip slot="extra" placement="top">
+        <span slot="content">{{ account }}</span>
+        <iIcon size="20" type="ios-information-outline"></iIcon>
+      </iTooltip>
 
-    <div>Address: {{ account }}</div>
+      <div>Adres: {{ account }}</div>
 
-    <canvas ref="qrcode"></canvas>
+      <canvas ref="qrcode"></canvas>
 
-    <div>Balance: {{ balance }} ETH </div>
+      <div>Balance: {{ balance }} ETH </div>
+    </iCard>
   </section>
 </template>
 
@@ -16,8 +20,16 @@
 import Web3 from 'web3'
 import QRCode from 'qrcode'
 
+import { Card, Tooltip, Icon } from 'iview'
+
 export default {
   name: 'Account',
+
+  components: {
+    'iCard': Card,
+    'iTooltip': Tooltip,
+    'iIcon': Icon
+  },
 
   computed: {
     account () {
@@ -34,6 +46,10 @@ export default {
   },
 
   mounted () {
+    QRCode.toCanvas(this.$refs.qrcode, this.account, (err) => {
+      if (err) console.log(err)
+    })
+
     this.$watch('account', newAccount => {
       QRCode.toCanvas(this.$refs.qrcode, newAccount, (err) => {
         if (err) console.log(err)

@@ -4,10 +4,10 @@ module.exports = {
     steps: 0.1
   },
   networks: {
-    'main': 'the Main Ethereum Network',
-    'ropsten': 'the Ropsten Ethereum Network',
-    'kovan': 'the Kovan Test Network',
-    'rinkeby': 'the Rinkeby Test Network',
+    'main': 'Main Ethereum Network',
+    'ropsten': 'Ropsten Ethereum Network',
+    'kovan': 'Kovan Test Network',
+    'rinkeby': 'Rinkeby Test Network',
     'private': 'a private node'
   }
 }

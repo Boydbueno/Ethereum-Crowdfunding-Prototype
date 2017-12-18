@@ -1,48 +1,69 @@
 <template>
+
   <div>
-    <overlay :isVisible="shouldShowInstallMetamaskPrompt" title="Install metamask to get started">
+    <overlay :isVisible="shouldShowInstallMetamaskPrompt" title="Wil je investeren?">
       <p>
-        To make use of this application, please install the <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">MetaMask Chrome extension</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" target="_blank">FireFox addon</a>.
+        Je hebt een plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
       </p>
       <iframe width="560" height="315" src="https://www.youtube.com/embed/6Gf_kRE4MJU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
       <p>
-        After installation, please <a class="refresh" href="#" @click="refresh">refresh this page</a>.
+        <iButton type="primary" v-if="!installed" long @click="installMetaMask">Installeer MetaMask</iButton>
+        <iButton type="primary" v-else long @click="refresh">Ik heb MetaMask geïnstalleerd</iButton>
       </p>
     </overlay>
 
-    <overlay :isVisible="shouldShowLoginMetaMaskPrompt" title="Please login to metamask">
+    <overlay :isVisible="shouldShowLoginMetaMaskPrompt" title="Je MetaMask is nog vergrendeld">
       <p>
-        Follow the instructions after clicking the MetaMask icon.
+        Open MetaMask en volg de instructies om je account te ontgrendelen.
       </p>
       <img src="../assets/images/metamaskExtension.jpg" />
     </overlay>
 
-    <overlay :isVisible="shouldShowConnectNetworkMetaMaskPrompt" title="Connected to the wrong network">
+    <overlay :isVisible="shouldShowConnectNetworkMetaMaskPrompt" title="Oops, je bent verbonden met het verkeerde netwerk">
       <p>
-        You're currently connected to {{ connectedNetworkLabel }}, please connect to {{ requiredNetworkLabel }} by using the network selection in MetaMask.
+        Je bent op het moment verbonden met het <strong>{{ connectedNetworkLabel }}</strong>. <br /> Open MetaMask en schakel over naar het <strong>{{ requiredNetworkLabel }}</strong>.
       </p>
       <img src="../assets/images/metamaskNetworkSelection.png" />
     </overlay>
 
-    <account></account>
+    <iRow type="flex" justify="center">
+      <account v-if="!isOverlayShown"></account>
+    </iRow>
 
-    <section class="contract">
-      <header>
-        <h1>Zonnepanelen Maassilo Rotterdam</h1>
-      </header>
-      <section class="info">
-        <div>Address: {{ crowdFundingContractAddress }}</div>
-        Goal: {{ goal }} ETH<br />
-        Value: {{ value }} ETH<br />
-        <progress :value="value" :max="goal" />
-        Participants: {{ crowdFundingContract.participantsCount }}
-      </section>
+    <iRow type="flex" justify="center">
+      <section v-if="!isOverlayShown" class="contract">
+        <iCard>
+          <p slot="title">Zonnepanelen Maassilo Rotterdam</p>
+          <iTooltip slot="extra" placement="top">
+            <span slot="content">{{ crowdFundingContractAddress }}</span>
+            <iIcon size="20" type="ios-information-outline"></iIcon>
+          </iTooltip>
+          <img src="../assets/images/maassilo.jpg">
+          <section class="info">
+            <iProgress :percent="Math.round(value / goal * 100)" hide-info></iProgress>
 
-      <section class="actions">
-        <input type="number" v-model="fundAmountInEther" name="fundAmount" min="0.1" step="0.1">
-        <input type="button" name="fund" value="Fund" @click="fundOneEther">
+            <div class="stat">
+              <span class="stat-number">{{ value }} ETH</span>
+              <span class="stat-caption">geïnvesteerd van <strong>{{ goal }} ETH</strong> doel</span>
+            </div>
+
+            <div class="stat">
+              <span class="stat-number">{{ crowdFundingContract.participantsCount }}</span>
+              <span class="stat-caption">{{ crowdFundingContract.participantsCount === 1 ? "investeerder" : "investeerders" }}</span>
+            </div>
+
+          </section>
+
+          <iCard>
+            <p slot="title">Investeren</p>
+            <section class="actions">
+              <input type="number" v-model="fundAmountInEther" name="fundAmount" min="0.1" step="0.1">
+              <iButton type="primary" name="fund" @click="fundOneEther" size="large">Investeer</iButton>
+            </section>
+          </iCard>
+        </iCard>
       </section>
-    </section>
+    </iRow>
 
   </div>
 </template>
@@ -57,6 +78,8 @@ import contractStore from '../contractStore'
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
 
+import { Button, Card, Icon, Progress, Row, Tooltip, InputNumber } from 'iview'
+
 import Overlay from '@/components/Overlay'
 import Account from '@/components/Account'
 
@@ -65,12 +88,20 @@ export default {
 
   components: {
     'overlay': Overlay,
-    'account': Account
+    'account': Account,
+    'iButton': Button,
+    'iCard': Card,
+    'iProgress': Progress,
+    'iRow': Row,
+    'iIcon': Icon,
+    'iTooltip': Tooltip,
+    'iInputNumber': InputNumber
   },
 
   data () {
     return {
       requiredNetworks: ['ropsten', 'private'],
+      installed: false,
       connectedNetwork: '',
       isLoggedIntoMetamask: false,
       fundAmountInEther: '0'
@@ -168,6 +199,11 @@ export default {
   methods: {
     refresh () {
       location.reload()
+    },
+
+    installMetaMask () {
+      this.installed = true
+      window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank')
     },
 
     initialize () {
@@ -282,6 +318,28 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.contract {
+  width: 750px;
 
+  img {
+    width: 100%;
+  }
+}
+
+.stat {
+  .stat-number {
+    display: block;
+    font-size: 20px;
+    margin-bottom: -5px;
+  }
+
+  .stat-caption {
+
+  }
+}
+
+.ivu-tooltip-inner {
+  max-width: 400px;
+}
 </style>
