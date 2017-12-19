@@ -72,6 +72,7 @@ module.exports = {
         loader: 'url-loader',
         options: {
           limit: 10000,
+          // Some ugly fix to make sure paths are also right when root path has a prefix
           name: '../../../' + utils.assetsPath('fonts/') + '[name].[hash:7].[ext]',
           outputPath: utils.assetsPath('fonts/'),
           useRelativePath: true
