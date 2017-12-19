@@ -2,16 +2,17 @@
   <section class="account">
     <iCard>
       <p slot="title">Jouw account</p>
-      <iTooltip slot="extra" placement="top">
-        <span slot="content">{{ account }}</span>
+      <iTooltip slot="extra" placement="bottom">
+        <span slot="content"><a :href="'https://ropsten.etherscan.io/address/' + account" target="_blank">{{ account }}</a></span>
         <iIcon size="20" type="ios-information-outline"></iIcon>
       </iTooltip>
 
-      <div>Adres: {{ account }}</div>
+      <iRow type="flex" justify="center">
+        <canvas ref="qrcode"></canvas>
+      </iRow>
 
-      <canvas ref="qrcode"></canvas>
-
-      <div>Balance: {{ balance }} ETH </div>
+      <div class="balance-title"><strong>Balance</strong></div>
+      <div class="balance">{{ balance }} ETH</div>
     </iCard>
   </section>
 </template>
@@ -20,7 +21,7 @@
 import Web3 from 'web3'
 import QRCode from 'qrcode'
 
-import { Card, Tooltip, Icon } from 'iview'
+import { Card, Tooltip, Icon, Row } from 'iview'
 
 export default {
   name: 'Account',
@@ -28,7 +29,8 @@ export default {
   components: {
     'iCard': Card,
     'iTooltip': Tooltip,
-    'iIcon': Icon
+    'iIcon': Icon,
+    'iRow': Row
   },
 
   computed: {
@@ -60,5 +62,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .balance-title, .balance {
+    text-align: center;
+  }
 
+  a {
+    color: white;
+    text-decoration: underline;
+  }
 </style>

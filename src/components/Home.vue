@@ -1,6 +1,6 @@
 <template>
-
   <div>
+
     <overlay :isVisible="shouldShowInstallMetamaskPrompt" title="Wil je investeren?">
       <p>
         Je hebt een plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
@@ -35,10 +35,11 @@
         <iCard>
           <p slot="title">Zonnepanelen Maassilo Rotterdam</p>
           <iTooltip slot="extra" placement="top">
-            <span slot="content">{{ crowdFundingContractAddress }}</span>
+            <span slot="content"><a :href="'https://ropsten.etherscan.io/address/' + crowdFundingContractAddress" target="_blank">{{ crowdFundingContractAddress }}</a></span>
             <iIcon size="20" type="ios-information-outline"></iIcon>
           </iTooltip>
           <img src="../assets/images/maassilo.jpg">
+
           <section class="info">
             <iProgress :percent="Math.round(value / goal * 100)" hide-info></iProgress>
 
@@ -51,7 +52,6 @@
               <span class="stat-number">{{ crowdFundingContract.participantsCount }}</span>
               <span class="stat-caption">{{ crowdFundingContract.participantsCount === 1 ? "investeerder" : "investeerders" }}</span>
             </div>
-
           </section>
 
           <iCard>
@@ -319,27 +319,28 @@ export default {
 </script>
 
 <style lang="scss">
-.contract {
-  width: 750px;
+  .contract {
+    width: 750px;
 
-  img {
-    width: 100%;
-  }
-}
-
-.stat {
-  .stat-number {
-    display: block;
-    font-size: 20px;
-    margin-bottom: -5px;
+    img {
+      width: 100%;
+    }
   }
 
-  .stat-caption {
-
+  .stat {
+    .stat-number {
+      display: block;
+      font-size: 20px;
+      margin-bottom: -5px;
+    }
   }
-}
 
-.ivu-tooltip-inner {
-  max-width: 400px;
-}
+  .ivu-tooltip-inner {
+    max-width: 400px !important;
+  }
+
+  a {
+    color: white !important;
+    text-decoration: underline !important;
+  }
 </style>
