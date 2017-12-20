@@ -3,6 +3,7 @@ module.exports = {
     goal: 14,
     steps: 0.1
   },
+  requiredNetwork: ['ropsten', 'private'],
   networks: {
     'main': 'Main Ethereum Network',
     'ropsten': 'Ropsten Ethereum Network',

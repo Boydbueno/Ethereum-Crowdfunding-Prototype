@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import BigNumber from 'bignumber.js'
 
+import config from '@/config.js'
 import contractStore from './contractStore.js'
 
 Vue.use(Vuex)
@@ -9,6 +10,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     account: '',
+    connectedNetwork: '',
+    isLoggedIntoMetaMask: false,
     wei: new BigNumber(0),
     crowdFundingContract: {
       address: '',
@@ -23,6 +26,16 @@ export default new Vuex.Store({
       address: '',
       totalSupply: 0,
       share: 0
+    }
+  },
+
+  getters: {
+    connectedNetworkLabel (state) {
+      return config.networks[state.connectedNetwork]
+    },
+
+    isConnectedToCorrectNetwork (state) {
+      return config.requiredNetwork.includes(state.connectedNetwork)
     }
   },
 
@@ -77,6 +90,14 @@ export default new Vuex.Store({
 
     setWei (state, wei) {
       state.wei = wei
+    },
+
+    setConnectedNetwork (state, network) {
+      state.connectedNetwork = network
+    },
+
+    setIsLoggedIntoMetaMask (state, isLoggedIn) {
+      state.isLoggedIntoMetaMask = isLoggedIn
     }
   },
 

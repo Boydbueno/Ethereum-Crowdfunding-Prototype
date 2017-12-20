@@ -26,7 +26,8 @@ export default {
 
 <style lang="scss" scoped>
   .overlay-background {
-    position: absolute;
+    position: fixed;
+    z-index: 100;
     top: 0;
     left: 0;
     width: 100%;
@@ -36,6 +37,7 @@ export default {
   
   .overlay {
     position: absolute;
+    z-index: 110;
     width: 600px;
     left: 50%;
     -webkit-transform: translateX(-50%);

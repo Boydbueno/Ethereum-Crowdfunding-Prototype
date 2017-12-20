@@ -1,62 +1,62 @@
 <template>
   <section class="account">
-    <iCard>
+    <i-card>
       <p slot="title">Jouw account</p>
-      <iTooltip slot="extra" placement="bottom">
+      <i-tooltip slot="extra" placement="bottom">
         <span slot="content"><a :href="'https://ropsten.etherscan.io/address/' + account" target="_blank">{{ account }}</a></span>
-        <iIcon size="20" type="ios-information-outline"></iIcon>
-      </iTooltip>
+        <i-icon size="20" type="ios-information-outline"></i-icon>
+      </i-tooltip>
 
-      <iRow type="flex" justify="center">
+      <i-row type="flex" justify="center">
         <canvas ref="qrcode"></canvas>
-      </iRow>
+      </i-row>
 
       <div class="balance-title"><strong>Balance</strong></div>
       <div class="balance">{{ balance }} ETH</div>
-    </iCard>
+    </i-card>
   </section>
 </template>
 
 <script>
 import Web3 from 'web3'
 import QRCode from 'qrcode'
+import { mapState } from 'vuex'
 
-import { Card, Tooltip, Icon, Row } from 'iview'
+import { Tooltip, Card, Icon, Row } from 'iview'
 
 export default {
   name: 'Account',
 
   components: {
-    'iCard': Card,
-    'iTooltip': Tooltip,
-    'iIcon': Icon,
-    'iRow': Row
+    'i-tooltip': Tooltip,
+    'i-card': Card,
+    'i-icon': Icon,
+    'i-row': Row
   },
 
   computed: {
-    account () {
-      return this.$store.state.account
-    },
-
-    wei () {
-      return this.$store.state.wei
-    },
-
     balance () {
       return Web3.utils.fromWei(this.wei.toString() || '0', 'ether')
-    }
+    },
+
+    ...mapState([
+      'account',
+      'wei'
+    ])
   },
 
   mounted () {
-    QRCode.toCanvas(this.$refs.qrcode, this.account, (err) => {
-      if (err) console.log(err)
-    })
+    if (this.account) this.renderQrCode(this.account)
 
-    this.$watch('account', newAccount => {
-      QRCode.toCanvas(this.$refs.qrcode, newAccount, (err) => {
+    this.$watch('account', this.renderQrCode)
+  },
+
+  methods: {
+    renderQrCode (account) {
+      QRCode.toCanvas(this.$refs.qrcode, account, (err) => {
         if (err) console.log(err)
       })
-    })
+    }
   }
 }
 </script>
