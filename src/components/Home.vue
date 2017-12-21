@@ -25,10 +25,10 @@ import contractStore from '@/contractStore'
 import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
 
-import { Row } from 'iview'
 import MetaMaskGuidance from '@/components/MetaMaskGuidance'
 import Project from '@/components/Project'
 import Account from '@/components/Account'
+import { Row } from 'iview'
 
 export default {
   name: 'Home',
@@ -115,6 +115,12 @@ export default {
       SolarTokenContract.setProvider(Web3.givenProvider)
 
       let crowdFundingContract = CrowdFundingContract.deployed().then(instance => {
+        const event = instance.allEvents({toBlock: 'latest'})
+
+        event.watch((error, log) => {
+          if (!error) console.log(log)
+        })
+
         // Get all info from this contract
         contractStore.crowdFundingContract = instance
         this.$store.commit('setCrowdFundingContractAddress', instance.address)

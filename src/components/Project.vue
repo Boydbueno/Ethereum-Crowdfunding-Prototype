@@ -26,20 +26,26 @@
         <p slot="title">Investeren</p>
         <section class="actions">
           <input type="number" v-model="fundAmountInEther" name="fundAmount" min="0.1" step="0.1">
-          <i-button type="primary" name="fund" @click="fundOneEther" size="large">Investeer</i-button>
+          <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
+
+        <i-card v-for="tx in this.$store.state.pendingTxs" :key="tx">
+          <p>{{ tx }}</p>
+        </i-card>
       </i-card>
     </i-card>
+
   </section>
 </template>
 
 <script>
 import Web3 from 'web3'
+
 import { mapState } from 'vuex'
 
 import contractStore from '@/contractStore'
 
-import { Button, Card, Icon, Progress, Row, Tooltip } from 'iview'
+import { Button, Card, Icon, Progress, Row, Tooltip, Message } from 'iview'
 
 export default {
   name: 'Project',
@@ -80,15 +86,22 @@ export default {
   },
 
   methods: {
-    fundOneEther () {
-      contractStore.crowdFundingContract.contribute({
+    fund () {
+      const msg = Message.loading({
+        content: 'Aan het wachten op transactie..',
+        duration: 0
+      })
+
+      contractStore.crowdFundingContract.contribute.sendTransaction({
         from: this.account,
         to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
-        this.$store.commit('increaseCrowdFundingValue', { wei: this.fundAmountInWei })
-        console.log(result)
+        this.$store.commit('addPendingTx', { txId: result })
+        this.fundAmountInEther = '0'
       }).catch((e) => {
+        msg()
+        Message.error('De transactie is geannuleerd')
         console.log(e)
       })
     }

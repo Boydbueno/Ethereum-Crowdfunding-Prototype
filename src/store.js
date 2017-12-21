@@ -12,6 +12,7 @@ export default new Vuex.Store({
     account: '',
     connectedNetwork: '',
     isLoggedIntoMetaMask: false,
+    pendingTxs: [],
     wei: new BigNumber(0),
     crowdFundingContract: {
       address: '',
@@ -98,6 +99,10 @@ export default new Vuex.Store({
 
     setIsLoggedIntoMetaMask (state, isLoggedIn) {
       state.isLoggedIntoMetaMask = isLoggedIn
+    },
+
+    addPendingTx (state, payload) {
+      state.pendingTxs.push(payload.txId)
     }
   },
 
