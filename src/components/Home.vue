@@ -28,7 +28,7 @@ import SolarToken from '../../build/contracts/SolarToken.json'
 import MetaMaskGuidance from '@/components/MetaMaskGuidance'
 import Project from '@/components/Project'
 import Account from '@/components/Account'
-import { Row } from 'iview'
+import { Row, Message } from 'iview'
 
 export default {
   name: 'Home',
@@ -49,6 +49,8 @@ export default {
 
   computed: {
     ...mapState([
+      'isLoggedIntoMetaMask',
+      'pendingTxs',
       'account',
       'wei'
     ]),
@@ -64,47 +66,60 @@ export default {
     window.web3 = new Web3(Web3.givenProvider)
 
     this.initialize()
-
-    // We keep polling for changes
-    // We cannot use events because of Web3 1.0
-    setInterval(() => {
-      this.initialize()
-    }, 2000)
   },
 
   methods: {
     initialize () {
-      // Check if user is logged into metamask
-      let getAccounts = this.getAccounts()
-      let getNetworkType = window.web3.eth.net.getNetworkType().then(result => {
+      this.accountPolling()
+
+      window.web3.eth.net.getNetworkType().then(result => {
         this.$store.commit('setConnectedNetwork', result)
 
         if (!this.isConnectedToCorrectNetwork) {
-          // Todo: Only repeat this part. But does the trick for now
-          return Promise.reject(new Error('Is not connected to correct network'))
+          return
         }
 
-        return this.retrieveContractInformation()
-      })
-
-      Promise.all([getAccounts, getNetworkType]).then(this.getUserBalances).catch(error => {
-        console.log(error)
+        this.retrieveContractInformation()
       })
     },
 
+    accountPolling () {
+      this.getAccounts().then(accounts => {
+        if (accounts.length <= 0) {
+          if (!this.isLoggedIntoMetaMask) return
+
+          this.$store.commit('setIsLoggedIntoMetaMask', false)
+          return
+        }
+
+        if (!this.isLoggedIntoMetaMask) {
+          this.$store.commit('setIsLoggedIntoMetaMask', true)
+        }
+
+        this.storeUserAccounts(accounts)
+
+        return this.getAccountBalance().then(result => {
+          if (this.wei === result) return
+
+          this.$store.commit('setWei', result)
+        })
+      })
+
+      setTimeout(this.accountPolling, 2000)
+    },
+
+    getAccounts () {
+      return window.web3.eth.getAccounts()
+    },
+
+    getAccountBalance () {
+      return window.web3.eth.getBalance(this.account)
+    },
+
     storeUserAccounts (accounts) {
-      if (accounts.length === 0) {
-        // Todo: Only repeat this part. But does the trick for now
-        return Promise.reject(new Error('Is not logged in'))
-      }
+      if (this.$store.state.account === accounts[0]) return
 
-      this.$store.commit('setIsLoggedIntoMetaMask', true)
-
-      if (this.$store.state.account !== accounts[0]) {
-        this.$store.commit('setAccount', accounts[0])
-      }
-
-      return Promise.resolve()
+      this.$store.commit('setAccount', accounts[0])
     },
 
     retrieveContractInformation () {
@@ -115,10 +130,16 @@ export default {
       SolarTokenContract.setProvider(Web3.givenProvider)
 
       let crowdFundingContract = CrowdFundingContract.deployed().then(instance => {
-        const event = instance.allEvents({toBlock: 'latest'})
+        let event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
 
         event.watch((error, log) => {
           if (!error) console.log(log)
+
+          if (this.pendingTxs.includes(log.transactionHash)) {
+            this.$store.commit('removePendingTx', { txId: log.transactionHash })
+            Message.destroy()
+            Message.success('De transactie is geslaagd!')
+          }
         })
 
         // Get all info from this contract
@@ -148,22 +169,6 @@ export default {
 
       contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then(result => {
         this.$store.commit('setSolarTokenShare', result)
-      })
-    },
-
-    getAccounts () {
-      return window.web3.eth.getAccounts().then(this.storeUserAccounts)
-    },
-
-    getAccountBalance () {
-      if (this.account === '') return
-
-      return window.web3.eth.getBalance(this.account).then(result => {
-        if (this.wei === result) return
-
-        this.$store.commit('setWei', result)
-      }).catch((error) => {
-        console.log(error)
       })
     },
 

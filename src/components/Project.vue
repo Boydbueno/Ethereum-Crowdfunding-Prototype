@@ -87,8 +87,8 @@ export default {
 
   methods: {
     fund () {
-      const msg = Message.loading({
-        content: 'Aan het wachten op transactie..',
+      let msg = Message.loading({
+        content: 'Aan het wachten op bevestiging van de transactie..',
         duration: 0
       })
 
@@ -98,11 +98,15 @@ export default {
         value: this.fundAmountInWei
       }).then((result) => {
         this.$store.commit('addPendingTx', { txId: result })
+        msg()
+        msg = Message.loading({
+          content: 'Bezig met verwerken van de transactie..',
+          duration: 0
+        })
         this.fundAmountInEther = '0'
       }).catch((e) => {
         msg()
         Message.error('De transactie is geannuleerd')
-        console.log(e)
       })
     }
   }
