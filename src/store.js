@@ -102,7 +102,7 @@ export default new Vuex.Store({
     },
 
     addPendingTx (state, payload) {
-      state.pendingTxs.push(payload.txId)
+      state.pendingTxs.push(payload.tx)
     }
   },
 

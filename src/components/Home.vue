@@ -49,6 +49,7 @@ export default {
 
   computed: {
     ...mapState([
+      'isLoggedIntoMetaMask',
       'account',
       'wei'
     ]),
@@ -64,42 +65,60 @@ export default {
     window.web3 = new Web3(Web3.givenProvider)
 
     this.initialize()
-
-    // We keep polling for changes
-    // We cannot use events because of Web3 1.0
-    setInterval(() => {
-      this.initialize()
-    }, 2000)
   },
 
   methods: {
     initialize () {
-      // Check if user is logged into metamask
-      let getAccounts = this.getAccounts()
-      let getNetworkType = window.web3.eth.net.getNetworkType().then(result => {
+      this.accountPolling()
+
+      window.web3.eth.net.getNetworkType().then(result => {
         this.$store.commit('setConnectedNetwork', result)
 
-        if (!this.isConnectedToCorrectNetwork) {
-          // Todo: Only repeat this part. But does the trick for now
-          return Promise.reject(new Error('Is not connected to correct network'))
-        }
+        if (!this.isConnectedToCorrectNetwork) return
 
-        return this.retrieveContractInformation()
+        this.retrieveContractInformation()
       })
 
-      Promise.all([getAccounts, getNetworkType]).then(this.getUserBalances).catch(error => {
+      // Todo: Retrieve user coins
+      // Todo: Show all previous transactions
+    },
+
+    accountPolling () {
+      this.getAccounts().then(accounts => {
+        if (accounts.length === 0) {
+          if (!this.isLoggedIntoMetaMask) return
+
+          this.$store.commit('setIsLoggedIntoMetaMask', false)
+          return
+        }
+
+        this.storeUserAccounts(accounts).then(this.getAccountBalance)
+
+        if (this.isLoggedIntoMetaMask) return
+
+        this.$store.commit('setIsLoggedIntoMetaMask', true)
+      })
+
+      setTimeout(this.accountPolling, 2000)
+    },
+
+    getAccounts () {
+      return window.web3.eth.getAccounts()
+    },
+
+    getAccountBalance () {
+      if (this.account === '') return
+
+      window.web3.eth.getBalance(this.account).then(result => {
+        if (this.wei === result) return
+
+        this.$store.commit('setWei', result)
+      }).catch((error) => {
         console.log(error)
       })
     },
 
     storeUserAccounts (accounts) {
-      if (accounts.length === 0) {
-        // Todo: Only repeat this part. But does the trick for now
-        return Promise.reject(new Error('Is not logged in'))
-      }
-
-      this.$store.commit('setIsLoggedIntoMetaMask', true)
-
       if (this.$store.state.account !== accounts[0]) {
         this.$store.commit('setAccount', accounts[0])
       }
@@ -115,10 +134,17 @@ export default {
       SolarTokenContract.setProvider(Web3.givenProvider)
 
       let crowdFundingContract = CrowdFundingContract.deployed().then(instance => {
-        const event = instance.allEvents({toBlock: 'latest'})
+        const event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
 
-        event.watch((error, log) => {
-          if (!error) console.log(log)
+        event.watch((err, log) => {
+          if (err) console.error(err)
+
+          // Here we need to check if this transaction is a transaction from the user
+          // If it is, we can destroy the loading message and display a new one with a success message.
+          // Todo: check for someone else's transaction
+          // Message.destroy()
+          // Message.success('De transactie is geslaagd!')
+          console.log(log)
         })
 
         // Get all info from this contract
@@ -148,22 +174,6 @@ export default {
 
       contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then(result => {
         this.$store.commit('setSolarTokenShare', result)
-      })
-    },
-
-    getAccounts () {
-      return window.web3.eth.getAccounts().then(this.storeUserAccounts)
-    },
-
-    getAccountBalance () {
-      if (this.account === '') return
-
-      return window.web3.eth.getBalance(this.account).then(result => {
-        if (this.wei === result) return
-
-        this.$store.commit('setWei', result)
-      }).catch((error) => {
-        console.log(error)
       })
     },
 

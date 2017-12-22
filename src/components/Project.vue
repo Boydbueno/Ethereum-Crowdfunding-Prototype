@@ -29,8 +29,14 @@
           <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
 
-        <i-card v-for="tx in this.$store.state.pendingTxs" :key="tx">
-          <p>{{ tx }}</p>
+        <i-table v-show="pendingTxs > 0" :columns="columns" :data="pendingTxs"></i-table>
+
+        <transition name="fade">
+          <i-table no-data-text="Geen transacties bezig" :columns="columns" :data="pendingTxs"></i-table>
+        </transition>
+
+        <i-card v-for="tx in this.$store.state.pendingTxs" :key="tx.id">
+          <p>{{ tx.id }}</p>
         </i-card>
       </i-card>
     </i-card>
@@ -45,7 +51,7 @@ import { mapState } from 'vuex'
 
 import contractStore from '@/contractStore'
 
-import { Button, Card, Icon, Progress, Row, Tooltip, Message } from 'iview'
+import { Button, Card, Icon, Progress, Row, Tooltip, Message, Table } from 'iview'
 
 export default {
   name: 'Project',
@@ -54,6 +60,7 @@ export default {
     'i-progress': Progress,
     'i-tooltip': Tooltip,
     'i-button': Button,
+    'i-table': Table,
     'i-card': Card,
     'i-icon': Icon,
     'i-row': Row
@@ -61,7 +68,20 @@ export default {
 
   data () {
     return {
-      fundAmountInEther: '0'
+      fundAmountInEther: '0',
+      columns: [
+        {
+          title: 'Status'
+        },
+        {
+          title: 'Bedrag',
+          key: 'value'
+        },
+        {
+          title: 'Afzender',
+          key: 'from'
+        }
+      ]
     }
   },
 
@@ -79,16 +99,17 @@ export default {
     },
 
     ...mapState([
+      'crowdFundingContract',
+      'pendingTxs',
       'account',
-      'wei',
-      'crowdFundingContract'
+      'wei'
     ])
   },
 
   methods: {
     fund () {
-      const msg = Message.loading({
-        content: 'Aan het wachten op transactie..',
+      let msg = Message.loading({
+        content: 'Aan het wachten op goedkeuring van transactie..',
         duration: 0
       })
 
@@ -97,7 +118,13 @@ export default {
         to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
-        this.$store.commit('addPendingTx', { txId: result })
+        msg()
+        msg = Message.loading({
+          content: 'Aan het verwerken van de transactie, dit kan even duren..',
+          duration: 0
+        })
+
+        this.$store.commit('addPendingTx', { tx: { id: result, from: this.account, to: contractStore.crowdFundingContract.address, value: this.fundAmountInWei } })
         this.fundAmountInEther = '0'
       }).catch((e) => {
         msg()
