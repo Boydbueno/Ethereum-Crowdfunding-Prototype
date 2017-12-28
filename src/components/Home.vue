@@ -183,14 +183,6 @@ export default {
 </script>
 
 <style lang="scss">
-  .stat {
-    .stat-number {
-      display: block;
-      font-size: 20px;
-      margin-bottom: -5px;
-    }
-  }
-
   .ivu-tooltip-inner {
     max-width: 400px !important;
   }

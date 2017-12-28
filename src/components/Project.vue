@@ -153,4 +153,12 @@ export default {
       width: 100%;
     }
   }
+
+  .stat {
+    .stat-number {
+      display: block;
+      font-size: 20px;
+      margin-bottom: -5px;
+    }
+  }
 </style>
