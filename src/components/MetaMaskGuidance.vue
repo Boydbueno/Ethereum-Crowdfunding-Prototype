@@ -4,7 +4,6 @@
       <p>
         Je hebt een plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
       </p>
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/6Gf_kRE4MJU?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
       <p>
         <i-button type="primary" v-if="!isInstallClicked" long @click="installMetaMask">Installeer MetaMask</i-button>
         <i-button type="primary" v-else long @click="refresh">Ik heb MetaMask geïnstalleerd</i-button>
