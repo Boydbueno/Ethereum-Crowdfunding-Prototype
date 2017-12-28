@@ -146,5 +146,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .contract {
+    width: 750px;
 
+    img {
+      width: 100%;
+    }
+  }
 </style>

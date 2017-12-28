@@ -183,14 +183,6 @@ export default {
 </script>
 
 <style lang="scss">
-  .contract {
-    width: 750px;
-
-    img {
-      width: 100%;
-    }
-  }
-
   .stat {
     .stat-number {
       display: block;
