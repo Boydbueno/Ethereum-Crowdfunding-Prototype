@@ -43,7 +43,7 @@ export default {
 
   computed: {
     balance () {
-      return Web3.utils.fromWei(this.wei.toString() || '0', 'ether')
+      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 1000) / 1000
     },
 
     ...mapState([
