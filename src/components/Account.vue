@@ -77,4 +77,9 @@ export default {
     color: white;
     text-decoration: underline;
   }
+
+  canvas {
+    width: 148px;
+    height: 148px;
+  }
 </style>
