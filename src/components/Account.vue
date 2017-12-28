@@ -14,7 +14,7 @@
       <div class="balance-title"><strong>Balance</strong></div>
       <div class="balance">{{ balance }} ETH</div>
 
-      <i-spin size="large" fix v-if="isLoading"></i-spin>
+      <i-spin size="large" fix v-if="isLoading || account === ''"></i-spin>
     </i-card>
   </section>
 </template>

@@ -42,7 +42,7 @@
         </i-card>
       </i-card>
 
-      <i-spin size="large" fix v-if="isLoading"></i-spin>
+      <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
     </i-card>
 
   </section>
