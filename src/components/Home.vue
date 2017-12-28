@@ -28,7 +28,7 @@ import SolarToken from '../../build/contracts/SolarToken.json'
 import MetaMaskGuidance from '@/components/MetaMaskGuidance'
 import Project from '@/components/Project'
 import Account from '@/components/Account'
-import { Row } from 'iview'
+import { Row, Message } from 'iview'
 
 export default {
   name: 'Home',
@@ -50,6 +50,7 @@ export default {
   computed: {
     ...mapState([
       'isLoggedIntoMetaMask',
+      'pendingTxs',
       'account',
       'wei'
     ]),
@@ -74,29 +75,34 @@ export default {
       window.web3.eth.net.getNetworkType().then(result => {
         this.$store.commit('setConnectedNetwork', result)
 
-        if (!this.isConnectedToCorrectNetwork) return
+        if (!this.isConnectedToCorrectNetwork) {
+          return
+        }
 
         this.retrieveContractInformation()
       })
-
-      // Todo: Retrieve user coins
-      // Todo: Show all previous transactions
     },
 
     accountPolling () {
       this.getAccounts().then(accounts => {
-        if (accounts.length === 0) {
+        if (accounts.length <= 0) {
           if (!this.isLoggedIntoMetaMask) return
 
           this.$store.commit('setIsLoggedIntoMetaMask', false)
           return
         }
 
-        this.storeUserAccounts(accounts).then(this.getAccountBalance)
+        if (!this.isLoggedIntoMetaMask) {
+          this.$store.commit('setIsLoggedIntoMetaMask', true)
+        }
 
-        if (this.isLoggedIntoMetaMask) return
+        this.storeUserAccounts(accounts)
 
-        this.$store.commit('setIsLoggedIntoMetaMask', true)
+        return this.getAccountBalance().then(result => {
+          if (this.wei === result) return
+
+          this.$store.commit('setWei', result)
+        })
       })
 
       setTimeout(this.accountPolling, 2000)
@@ -107,23 +113,13 @@ export default {
     },
 
     getAccountBalance () {
-      if (this.account === '') return
-
-      window.web3.eth.getBalance(this.account).then(result => {
-        if (this.wei === result) return
-
-        this.$store.commit('setWei', result)
-      }).catch((error) => {
-        console.log(error)
-      })
+      return window.web3.eth.getBalance(this.account)
     },
 
     storeUserAccounts (accounts) {
-      if (this.$store.state.account !== accounts[0]) {
-        this.$store.commit('setAccount', accounts[0])
-      }
+      if (this.$store.state.account === accounts[0]) return
 
-      return Promise.resolve()
+      this.$store.commit('setAccount', accounts[0])
     },
 
     retrieveContractInformation () {
@@ -134,17 +130,16 @@ export default {
       SolarTokenContract.setProvider(Web3.givenProvider)
 
       let crowdFundingContract = CrowdFundingContract.deployed().then(instance => {
-        const event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
+        let event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
 
-        event.watch((err, log) => {
-          if (err) console.error(err)
+        event.watch((error, log) => {
+          if (!error) console.log(log)
 
-          // Here we need to check if this transaction is a transaction from the user
-          // If it is, we can destroy the loading message and display a new one with a success message.
-          // Todo: check for someone else's transaction
-          // Message.destroy()
-          // Message.success('De transactie is geslaagd!')
-          console.log(log)
+          if (this.pendingTxs.includes(log.transactionHash)) {
+            this.$store.commit('removePendingTx', { txId: log.transactionHash })
+            Message.destroy()
+            Message.success('De transactie is geslaagd!')
+          }
         })
 
         // Get all info from this contract

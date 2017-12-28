@@ -109,7 +109,7 @@ export default {
   methods: {
     fund () {
       let msg = Message.loading({
-        content: 'Aan het wachten op goedkeuring van transactie..',
+        content: 'Aan het wachten op goedkeuring van de transactie..',
         duration: 0
       })
 
@@ -118,18 +118,16 @@ export default {
         to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
+        this.$store.commit('addPendingTx', { txId: result })
         msg()
         msg = Message.loading({
-          content: 'Aan het verwerken van de transactie, dit kan even duren..',
+          content: 'Bezig met het verwerken van de transactie, dit kan even duren..',
           duration: 0
         })
-
-        this.$store.commit('addPendingTx', { tx: { id: result, from: this.account, to: contractStore.crowdFundingContract.address, value: this.fundAmountInWei } })
         this.fundAmountInEther = '0'
       }).catch((e) => {
         msg()
         Message.error('De transactie is geannuleerd')
-        console.log(e)
       })
     }
   }
