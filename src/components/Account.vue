@@ -13,6 +13,8 @@
 
       <div class="balance-title"><strong>Balance</strong></div>
       <div class="balance">{{ balance }} ETH</div>
+
+      <i-spin size="large" fix v-if="isLoading"></i-spin>
     </i-card>
   </section>
 </template>
@@ -22,7 +24,7 @@ import Web3 from 'web3'
 import QRCode from 'qrcode'
 import { mapState } from 'vuex'
 
-import { Tooltip, Card, Icon, Row } from 'iview'
+import { Tooltip, Card, Icon, Spin, Row } from 'iview'
 
 export default {
   name: 'Account',
@@ -31,8 +33,13 @@ export default {
     'i-tooltip': Tooltip,
     'i-card': Card,
     'i-icon': Icon,
+    'i-spin': Spin,
     'i-row': Row
   },
+
+  props: [
+    'isLoading'
+  ],
 
   computed: {
     balance () {

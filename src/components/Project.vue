@@ -39,6 +39,8 @@
           <p>{{ tx.id }}</p>
         </i-card>
       </i-card>
+
+      <i-spin size="large" fix v-if="isLoading"></i-spin>
     </i-card>
 
   </section>
@@ -51,7 +53,7 @@ import { mapState } from 'vuex'
 
 import contractStore from '@/contractStore'
 
-import { Button, Card, Icon, Progress, Row, Tooltip, Message, Table } from 'iview'
+import { Button, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
@@ -63,8 +65,13 @@ export default {
     'i-table': Table,
     'i-card': Card,
     'i-icon': Icon,
+    'i-spin': Spin,
     'i-row': Row
   },
+
+  props: [
+    'isLoading'
+  ],
 
   data () {
     return {

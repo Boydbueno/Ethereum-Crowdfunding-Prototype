@@ -4,11 +4,11 @@
     <metamask-guidance></metamask-guidance>
 
     <i-row type="flex" justify="center">
-      <account v-if="$store.state.isLoggedIntoMetaMask"></account>
+      <account :is-loading="!$store.state.isLoggedIntoMetaMask"></account>
     </i-row>
 
     <i-row type="flex" justify="center">
-      <project v-if="$store.getters.isConnectedToCorrectNetwork"></project>
+      <project :is-loading="!$store.getters.isConnectedToCorrectNetwork"></project>
     </i-row>
 
   </div>
