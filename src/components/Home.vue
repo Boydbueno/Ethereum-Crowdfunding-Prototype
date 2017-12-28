@@ -42,7 +42,6 @@ export default {
 
   data () {
     return {
-      isLoggedIntoMetamask: false,
       fundAmountInEther: '0'
     }
   },

@@ -10,8 +10,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     account: '',
-    connectedNetwork: '',
-    isLoggedIntoMetaMask: false,
+    connectedNetwork: 'private',
+    isLoggedIntoMetaMask: true,
     pendingTxs: [],
     wei: new BigNumber(0),
     crowdFundingContract: {
