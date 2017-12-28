@@ -27,7 +27,7 @@
       <i-card>
         <p slot="title">Investeren</p>
         <section class="actions">
-          <input type="number" v-model="fundAmountInEther" name="fundAmount" min="0.1" step="0.1">
+          <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>
           <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
 
@@ -56,13 +56,14 @@ import { mapState } from 'vuex'
 import contractStore from '@/contractStore'
 
 import AnimatedNumber from '@/components/AnimatedNumber'
-import { Button, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
+import { InputNumber, Button, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
 
   components: {
     'animated-number': AnimatedNumber,
+    'i-input-number': InputNumber,
     'i-progress': Progress,
     'i-tooltip': Tooltip,
     'i-button': Button,
@@ -79,7 +80,7 @@ export default {
 
   data () {
     return {
-      fundAmountInEther: '0',
+      fundAmountInEther: 0.1,
       columns: [
         {
           title: 'Status'
