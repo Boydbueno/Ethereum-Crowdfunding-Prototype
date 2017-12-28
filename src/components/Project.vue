@@ -9,15 +9,17 @@
       <img src="../assets/images/maassilo.jpg">
 
       <section class="info">
-        <i-progress :percent="Math.round(value / goal * 100)" hide-info></i-progress>
+        <i-progress :percent="Math.round(value / goal * 100) || 0" hide-info></i-progress>
 
         <div class="stat">
-          <span class="stat-number">{{ value }} ETH</span>
+          <span class="stat-number">
+            <animated-number :value="value" :decimals="1"></animated-number> ETH
+          </span>
           <span class="stat-caption">geïnvesteerd van <strong>{{ goal }} ETH</strong> doel</span>
         </div>
 
         <div class="stat">
-          <span class="stat-number">{{ crowdFundingContract.participantsCount }}</span>
+          <animated-number class="stat-number" :value="crowdFundingContract.participantsCount"></animated-number>
           <span class="stat-caption">{{ crowdFundingContract.participantsCount === 1 ? "investeerder" : "investeerders" }}</span>
         </div>
       </section>
@@ -53,12 +55,14 @@ import { mapState } from 'vuex'
 
 import contractStore from '@/contractStore'
 
+import AnimatedNumber from '@/components/AnimatedNumber'
 import { Button, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
 
   components: {
+    'animated-number': AnimatedNumber,
     'i-progress': Progress,
     'i-tooltip': Tooltip,
     'i-button': Button,
