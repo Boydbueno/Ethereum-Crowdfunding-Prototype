@@ -2,7 +2,7 @@
   <div>
     <overlay :isVisible="metamaskState === 0" title="Wil je investeren?">
       <p>
-        Je hebt een plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
+        Je hebt een veilige plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
       </p>
       <p>
         <i-button type="primary" v-if="!isInstallClicked" long @click="installMetaMask">Installeer MetaMask</i-button>
