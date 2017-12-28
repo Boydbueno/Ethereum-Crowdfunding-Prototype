@@ -39,9 +39,10 @@ export default {
     position: absolute;
     z-index: 110;
     width: 600px;
+    top: 50%;
     left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
     padding: 15px;
     background-color: white;
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
