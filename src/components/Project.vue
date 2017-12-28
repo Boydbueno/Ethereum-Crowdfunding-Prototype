@@ -31,15 +31,9 @@
           <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
 
-        <i-table v-show="pendingTxs > 0" :columns="columns" :data="pendingTxs"></i-table>
-
-        <transition name="fade">
-          <i-table no-data-text="Geen transacties bezig" :columns="columns" :data="pendingTxs"></i-table>
-        </transition>
-
-        <i-card v-for="tx in this.$store.state.pendingTxs" :key="tx.id">
-          <p>{{ tx.id }}</p>
-        </i-card>
+        <div v-show="pendingTxs.length > 0">
+          <i-table :columns="columns" :data="pendingTxs"></i-table>
+        </div>
       </i-card>
 
       <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
@@ -83,15 +77,28 @@ export default {
       fundAmountInEther: 0.1,
       columns: [
         {
-          title: 'Status'
+          title: ' ',
+          render: (h, params) => {
+            return h(Spin)
+          }
         },
         {
           title: 'Bedrag',
-          key: 'value'
+          key: 'value',
+          render: (h, params) => {
+            return h('span', Web3.utils.fromWei(params.row.value, 'ether') + ' ETH')
+          }
         },
         {
           title: 'Afzender',
-          key: 'from'
+          key: 'from',
+          render: (h, params) => {
+            if (params.row.from === this.account) {
+              return h('span', 'Jij')
+            } else {
+              return h('span', 'Anoniem')
+            }
+          }
         }
       ]
     }
@@ -107,7 +114,7 @@ export default {
     },
 
     fundAmountInWei () {
-      return Web3.utils.toWei(this.fundAmountInEther)
+      return Web3.utils.toWei(this.fundAmountInEther.toString())
     },
 
     ...mapState([
@@ -127,16 +134,19 @@ export default {
 
       contractStore.crowdFundingContract.contribute.sendTransaction({
         from: this.account,
-        to: contractStore.crowdFundingContract.address,
         value: this.fundAmountInWei
       }).then((result) => {
-        this.$store.commit('addPendingTx', { txId: result })
+        this.$store.commit('addPendingTx', {
+          hash: result,
+          from: this.account,
+          value: this.fundAmountInWei
+        })
         msg()
         msg = Message.loading({
           content: 'Bezig met het verwerken van de transactie, dit kan even duren..',
           duration: 0
         })
-        this.fundAmountInEther = '0'
+        this.fundAmountInEther = 0
       }).catch((e) => {
         msg()
         Message.error('De transactie is geannuleerd')

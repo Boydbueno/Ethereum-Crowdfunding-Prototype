@@ -102,12 +102,11 @@ export default new Vuex.Store({
     },
 
     addPendingTx (state, payload) {
-      state.pendingTxs.push(payload.txId)
+      state.pendingTxs.push(payload)
     },
 
     removePendingTx (state, payload) {
-      let index = state.pendingTxs.indexOf(payload.TxId)
-      state.pendingTxs.splice(index, 1)
+      state.pendingTxs = state.pendingTxs.filter(obj => obj.hash !== payload.TxHash)
     }
   },
 
