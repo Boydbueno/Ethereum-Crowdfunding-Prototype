@@ -133,7 +133,7 @@ export default {
         let event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
 
         event.watch((error, log) => {
-          if (!error) console.log(log)
+          if (error) console.error(error)
 
           if (this.pendingTxs.includes(log.transactionHash)) {
             this.$store.commit('removePendingTx', { txId: log.transactionHash })
