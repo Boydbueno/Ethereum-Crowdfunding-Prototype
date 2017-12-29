@@ -106,7 +106,7 @@ export default new Vuex.Store({
     },
 
     removePendingTx (state, payload) {
-      state.pendingTxs = state.pendingTxs.filter(obj => obj.hash !== payload.TxHash)
+      state.pendingTxs = state.pendingTxs.filter(obj => obj.hash !== payload.txHash)
     }
   },
 

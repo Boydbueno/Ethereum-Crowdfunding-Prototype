@@ -134,8 +134,7 @@ export default {
         event.watch((error, log) => {
           if (error) console.error(error)
 
-          // Todo: Fix the check for new pendingTxs structure (objects now instead of array with hashes)
-          if (this.pendingTxs.includes(log.transactionHash)) {
+          if (this.pendingTxs.find(obj => obj.hash === log.transactionHash)) {
             this.$store.commit('removePendingTx', { txHash: log.transactionHash })
             Message.destroy()
             Message.success('De transactie is geslaagd!')

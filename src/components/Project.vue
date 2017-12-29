@@ -31,9 +31,9 @@
           <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
 
-        <div v-show="pendingTxs.length > 0">
-          <i-table :columns="columns" :data="pendingTxs"></i-table>
-        </div>
+        <transition name="fade">
+          <i-table v-show="pendingTxs.length > 0" :columns="columns" :data="pendingTxs"></i-table>
+        </transition>
       </i-card>
 
       <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
@@ -171,5 +171,13 @@ export default {
       font-size: 20px;
       margin-bottom: -5px;
     }
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0
   }
 </style>
