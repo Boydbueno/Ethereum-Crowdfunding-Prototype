@@ -1,5 +1,5 @@
 <template>
-  <span>{{ tweeningValue }}</span>
+  <span>{{ displayValue }}</span>
 </template>
 
 <script>
@@ -14,6 +14,16 @@ export default {
     }
   },
 
+  computed: {
+    displayValue () {
+      if (this.format) {
+        return this.format(parseInt(this.tweeningValue))
+      }
+
+      return this.tweeningValue
+    }
+  },
+
   props: {
     value: {
       type: [String, Number],
@@ -23,6 +33,9 @@ export default {
       type: Number,
       required: false,
       default: 0
+    },
+    format: {
+      required: false
     }
   },
 

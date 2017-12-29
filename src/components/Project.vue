@@ -14,6 +14,7 @@
         <div class="stat">
           <span class="stat-number">
             <animated-number :value="value" :decimals="1"></animated-number> ETH
+            <animated-number :value="valueInEuros" :decimals="2" :format="formatEuro"></animated-number>
           </span>
           <span class="stat-caption">geïnvesteerd van <strong>{{ goal }} ETH</strong> doel</span>
         </div>
@@ -30,10 +31,6 @@
           <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>
           <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
         </section>
-
-        <transition name="fade">
-          <i-table v-show="pendingTxs.length > 0" :columns="columns" :data="pendingTxs"></i-table>
-        </transition>
       </i-card>
 
       <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
@@ -50,7 +47,8 @@ import { mapState } from 'vuex'
 import contractStore from '@/contractStore'
 
 import AnimatedNumber from '@/components/AnimatedNumber'
-import { InputNumber, Button, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
+
+import { InputNumber, Button, Affix, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
@@ -62,6 +60,7 @@ export default {
     'i-tooltip': Tooltip,
     'i-button': Button,
     'i-table': Table,
+    'i-affix': Affix,
     'i-card': Card,
     'i-icon': Icon,
     'i-spin': Spin,
@@ -74,33 +73,7 @@ export default {
 
   data () {
     return {
-      fundAmountInEther: 0.1,
-      columns: [
-        {
-          title: ' ',
-          render: (h, params) => {
-            return h(Spin)
-          }
-        },
-        {
-          title: 'Bedrag',
-          key: 'value',
-          render: (h, params) => {
-            return h('span', Web3.utils.fromWei(params.row.value, 'ether') + ' ETH')
-          }
-        },
-        {
-          title: 'Afzender',
-          key: 'from',
-          render: (h, params) => {
-            if (params.row.from === this.account) {
-              return h('span', 'Jij')
-            } else {
-              return h('span', 'Anoniem')
-            }
-          }
-        }
-      ]
+      fundAmountInEther: 0.1
     }
   },
 
@@ -109,8 +82,16 @@ export default {
       return Web3.utils.fromWei(this.$store.state.crowdFundingContract.goal.toString() || '0', 'ether')
     },
 
+    goalInEuros () {
+      return this.goal.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
+    },
+
     value () {
       return Web3.utils.fromWei(this.$store.state.crowdFundingContract.value.toString() || '0', 'ether')
+    },
+
+    valueInEuros () {
+      return this.value * this.euroConversion
     },
 
     fundAmountInWei () {
@@ -119,6 +100,7 @@ export default {
 
     ...mapState([
       'crowdFundingContract',
+      'euroConversion',
       'pendingTxs',
       'account',
       'wei'
@@ -151,18 +133,18 @@ export default {
         msg()
         Message.error('De transactie is geannuleerd')
       })
+    },
+
+    formatEuro (value) {
+      return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .contract {
-    width: 750px;
-
-    img {
-      width: 100%;
-    }
+  img {
+    width: 100%;
   }
 
   .stat {
