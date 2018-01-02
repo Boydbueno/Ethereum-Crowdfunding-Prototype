@@ -1,12 +1,16 @@
 <template>
   <div>
     <overlay :isVisible="metamaskState === 0" title="Wil je investeren?">
-      <p>
-        Je hebt een veilige plek nodig om je aandelen in zonnepanelen op te slaan! De perfecte plek is in een beveiligde portemonnee zoals <strong>MetaMask</strong>.
-      </p>
+        
+      <i-steps :current="step" direction="vertical">
+        <i-step title="Installeer MetaMask" content="MetaMask is een veilige plek om je aandelen te bewaren, dit is ook gelijk je inlog"></i-step>
+        <i-step title="Ik heb MetaMask geïnstalleerd" content="Vernieuw de pagina om verder te gaan"></i-step>
+        <i-step title="Begin met beleggen!"></i-step>
+      </i-steps>
+
       <p>
         <i-button type="primary" v-if="!isInstallClicked" long @click="installMetaMask">Installeer MetaMask</i-button>
-        <i-button type="primary" v-else long @click="refresh">Ik heb MetaMask geïnstalleerd</i-button>
+        <i-button type="primary" v-else long @click="refresh">Pagina vernieuwen</i-button>
       </p>
     </overlay>
 
@@ -33,19 +37,22 @@ import { mapState, mapGetters } from 'vuex'
 import Overlay from '@/components/Overlay'
 import MetaMaskService from '@/services/MetaMaskService'
 
-import { Button } from 'iview'
+import { Button, Steps, Step } from 'iview'
 
 export default {
   name: 'MetaMaskGuidance',
 
   components: {
     'overlay': Overlay,
-    'i-button': Button
+    'i-button': Button,
+    'i-steps': Steps,
+    'i-step': Step
   },
 
   data () {
     return {
-      isInstallClicked: false
+      isInstallClicked: false,
+      step: 0
     }
   },
 
@@ -89,12 +96,17 @@ export default {
 
   methods: {
     refresh () {
+      this.step = 2
+      // Todo: Small delay for this
       location.reload()
     },
 
     installMetaMask () {
       this.isInstallClicked = true
-      window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank')
+      this.step = 1
+
+      // Todo: Small delay for this
+      // window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank')
     }
   }
 }
