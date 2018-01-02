@@ -4,13 +4,16 @@
     <metamask-guidance></metamask-guidance>
 
     <i-row type="flex" justify="center">
-      <account v-if="$store.state.isLoggedIntoMetaMask"></account>
+      <i-col><account :is-loading="!$store.state.isLoggedIntoMetaMask"></account></i-col>
     </i-row>
 
     <i-row type="flex" justify="center">
-      <project v-if="$store.getters.isConnectedToCorrectNetwork"></project>
+      <i-col span="12"><project :is-loading="!$store.getters.isConnectedToCorrectNetwork"></project></i-col>
     </i-row>
 
+    <i-row type="flex" justify="center">
+      <i-col span="12"><pending-transactions></pending-transactions></i-col>
+    </i-row>
   </div>
 </template>
 
@@ -26,23 +29,25 @@ import CrowdFunding from '../../build/contracts/SolarParkFunding.json'
 import SolarToken from '../../build/contracts/SolarToken.json'
 
 import MetaMaskGuidance from '@/components/MetaMaskGuidance'
+import PendingTxs from '@/components/PendingTxs'
 import Project from '@/components/Project'
 import Account from '@/components/Account'
-import { Row, Message } from 'iview'
+import { Row, Col, Message } from 'iview'
 
 export default {
   name: 'Home',
 
   components: {
     'metamask-guidance': MetaMaskGuidance,
+    'pending-transactions': PendingTxs,
     'account': Account,
     'project': Project,
-    'i-row': Row
+    'i-row': Row,
+    'i-col': Col
   },
 
   data () {
     return {
-      isLoggedIntoMetamask: false,
       fundAmountInEther: '0'
     }
   },
@@ -133,12 +138,15 @@ export default {
         let event = instance.allEvents({fromBlock: 0, toBlock: 'latest'})
 
         event.watch((error, log) => {
-          if (!error) console.log(log)
+          if (error) console.error(error)
 
-          if (this.pendingTxs.includes(log.transactionHash)) {
-            this.$store.commit('removePendingTx', { txId: log.transactionHash })
+          let correspondingPendingTx = this.pendingTxs.find(obj => obj.hash === log.transactionHash)
+          if (correspondingPendingTx) {
+            this.$store.commit('removePendingTx', { txHash: log.transactionHash })
             Message.destroy()
             Message.success('De transactie is geslaagd!')
+
+            this._updateCrowdFundingContract()
           }
         })
 
@@ -184,22 +192,6 @@ export default {
 </script>
 
 <style lang="scss">
-  .contract {
-    width: 750px;
-
-    img {
-      width: 100%;
-    }
-  }
-
-  .stat {
-    .stat-number {
-      display: block;
-      font-size: 20px;
-      margin-bottom: -5px;
-    }
-  }
-
   .ivu-tooltip-inner {
     max-width: 400px !important;
   }

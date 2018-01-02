@@ -12,7 +12,9 @@
       </i-row>
 
       <div class="balance-title"><strong>Balance</strong></div>
-      <div class="balance">{{ balance }} ETH</div>
+      <div class="balance">{{ balance }} ETH ({{ euroBalance }})</div>
+
+      <i-spin size="large" fix v-if="isLoading || account === ''"></i-spin>
     </i-card>
   </section>
 </template>
@@ -22,7 +24,7 @@ import Web3 from 'web3'
 import QRCode from 'qrcode'
 import { mapState } from 'vuex'
 
-import { Tooltip, Card, Icon, Row } from 'iview'
+import { Tooltip, Card, Icon, Spin, Row } from 'iview'
 
 export default {
   name: 'Account',
@@ -31,15 +33,25 @@ export default {
     'i-tooltip': Tooltip,
     'i-card': Card,
     'i-icon': Icon,
+    'i-spin': Spin,
     'i-row': Row
   },
 
+  props: [
+    'isLoading'
+  ],
+
   computed: {
     balance () {
-      return Web3.utils.fromWei(this.wei.toString() || '0', 'ether')
+      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 1000) / 1000
+    },
+
+    euroBalance () {
+      return (this.balance * this.euroConversion).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
     },
 
     ...mapState([
+      'euroConversion',
       'account',
       'wei'
     ])
@@ -69,5 +81,10 @@ export default {
   a {
     color: white;
     text-decoration: underline;
+  }
+
+  canvas {
+    width: 148px;
+    height: 148px;
   }
 </style>

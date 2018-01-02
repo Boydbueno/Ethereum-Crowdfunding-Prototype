@@ -1,14 +1,16 @@
 <template>
   <div>
     <div class="overlay-background" v-if="isVisible"></div>
-  	<section class="overlay" v-if="isVisible">
-        <h1>{{ title }}</h1>
-        <slot></slot>
-    </section>
+    <i-card class="overlay" v-if="isVisible">
+      <p slot="title">{{ title }}</p>
+      <slot></slot>
+    </i-card>
   </div>
 </template>
 
 <script>
+import { Card } from 'iview'
+
 export default {
   name: 'Overlay',
 
@@ -20,6 +22,10 @@ export default {
     title: {
       type: String
     }
+  },
+
+  components: {
+    'i-card': Card
   }
 }
 </script>
@@ -39,9 +45,10 @@ export default {
     position: absolute;
     z-index: 110;
     width: 600px;
+    top: 50%;
     left: 50%;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
     padding: 15px;
     background-color: white;
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
