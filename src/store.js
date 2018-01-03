@@ -9,10 +9,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    euroConversion: 726,
     account: '',
     connectedNetwork: 'private',
     isLoggedIntoMetaMask: true,
     pendingTxs: [],
+    pricePerPart: 0.1,
+    partsPerSolarPanel: 6,
     wei: new BigNumber(0),
     crowdFundingContract: {
       address: '',

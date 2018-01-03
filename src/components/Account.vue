@@ -12,7 +12,7 @@
       </i-row>
 
       <div class="balance-title"><strong>Balance</strong></div>
-      <div class="balance">{{ balance }} ETH ({{ euroBalance }})</div>
+      <div class="balance">{{ balance.toLocaleString('nl-NL') }} ETH <br /> <small>({{ euroBalance }})</small></div>
 
       <i-spin size="large" fix v-if="isLoading || account === ''"></i-spin>
     </i-card>
@@ -43,7 +43,7 @@ export default {
 
   computed: {
     balance () {
-      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 1000) / 1000
+      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 100) / 100
     },
 
     euroBalance () {
@@ -65,7 +65,7 @@ export default {
 
   methods: {
     renderQrCode (account) {
-      QRCode.toCanvas(this.$refs.qrcode, account, (err) => {
+      QRCode.toCanvas(this.$refs.qrcode, account, { margin: 2 }, (err) => {
         if (err) console.log(err)
       })
     }
@@ -81,6 +81,10 @@ export default {
   a {
     color: white;
     text-decoration: underline;
+  }
+
+  p {
+    color: #666;
   }
 
   canvas {

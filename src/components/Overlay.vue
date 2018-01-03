@@ -38,7 +38,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.2);
   }
   
   .overlay {
@@ -49,8 +49,10 @@ export default {
     left: 50%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    padding: 15px;
-    background-color: white;
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+    padding: 5px;
+  }
+
+  p {
+    color: #666;
   }
 </style>
