@@ -9,7 +9,7 @@
       </i-steps>
 
       <p>
-        <i-button :type="!isInstallClicked ? 'primary' : 'success'" long @click="onButtonClick">
+        <i-button :type="!isInstallClicked ? 'primary' : 'success'" :loading="isRefreshClicked" long @click="onButtonClick">
           <template v-if="!isInstallClicked">
             Naar MetaMask
           </template>
@@ -58,6 +58,7 @@ export default {
   data () {
     return {
       isInstallClicked: false,
+      isRefreshClicked: false,
       step: 0
     }
   },
@@ -111,6 +112,8 @@ export default {
 
     refresh () {
       this.step = 2
+      this.isRefreshClicked = true
+
       LoadingBar.start()
 
       window.setTimeout(LoadingBar.finish, 750)
