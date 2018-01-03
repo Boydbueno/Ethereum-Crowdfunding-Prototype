@@ -12,7 +12,7 @@
       </i-row>
 
       <div class="balance-title"><strong>Balance</strong></div>
-      <div class="balance">{{ balance }} ETH <br /> <small>({{ euroBalance }})</small></div>
+      <div class="balance">{{ balance.toLocaleString('nl-NL') }} ETH <br /> <small>({{ euroBalance }})</small></div>
 
       <i-spin size="large" fix v-if="isLoading || account === ''"></i-spin>
     </i-card>
@@ -43,7 +43,7 @@ export default {
 
   computed: {
     balance () {
-      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 1000) / 1000
+      return Math.round(Web3.utils.fromWei(this.wei.toString() || '0', 'ether') * 100) / 100
     },
 
     euroBalance () {
