@@ -12,7 +12,7 @@
       </i-row>
 
       <div class="balance-title"><strong>Balance</strong></div>
-      <div class="balance">{{ balance }} ETH ({{ euroBalance }})</div>
+      <div class="balance">{{ balance }} ETH <br /> <small>({{ euroBalance }})</small></div>
 
       <i-spin size="large" fix v-if="isLoading || account === ''"></i-spin>
     </i-card>
@@ -65,7 +65,7 @@ export default {
 
   methods: {
     renderQrCode (account) {
-      QRCode.toCanvas(this.$refs.qrcode, account, (err) => {
+      QRCode.toCanvas(this.$refs.qrcode, account, { margin: 2 }, (err) => {
         if (err) console.log(err)
       })
     }
