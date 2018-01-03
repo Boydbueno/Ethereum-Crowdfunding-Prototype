@@ -30,10 +30,13 @@
             </div>
           </section>
 
-          <section class="actions">
-            <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>
-            <i-button type="primary" name="fund" @click="fund" size="large" long :disabled="fundAmountInEther <= 0">Investeer</i-button>
-          </section>
+          <i-card>
+            <section class="actions">
+              Investeer <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>ETH <small>{{ fundAmountInEuros }}</small> <br />
+              Voor {{ amountOfSolarPanels }} {{ amountOfParts >= 2 * partsPerSolarPanel ? 'zonnepanelen' : 'zonnepaneel' }}
+              <i-button type="primary" name="fund" @click="fund" size="large" long :disabled="fundAmountInEther <= 0">Investeer</i-button>
+            </section>
+          </i-card>
         </i-col>
 
         <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
@@ -103,9 +106,35 @@ export default {
       return Web3.utils.toWei(this.fundAmountInEther.toString())
     },
 
+    fundAmountInEuros () {
+      return (this.fundAmountInEther * this.euroConversion).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
+    },
+
+    amountOfParts () {
+      return Math.round(this.fundAmountInEther / this.pricePerPart)
+    },
+
+    amountOfSolarPanels () {
+      let modulo = this.amountOfParts % this.partsPerSolarPanel
+
+      if (modulo === 0) {
+        return this.amountOfParts / this.partsPerSolarPanel
+      }
+
+      if (this.amountOfParts < this.partsPerSolarPanel) {
+        return (this.amountOfParts % this.partsPerSolarPanel) + '/' + this.partsPerSolarPanel
+      }
+
+      let fullPanels = Math.floor(this.amountOfParts / this.partsPerSolarPanel)
+
+      return fullPanels + ' ' + (this.amountOfParts % this.partsPerSolarPanel) + '/' + this.partsPerSolarPanel
+    },
+
     ...mapState([
       'crowdFundingContract',
+      'partsPerSolarPanel',
       'euroConversion',
+      'pricePerPart',
       'pendingTxs',
       'account',
       'wei'
