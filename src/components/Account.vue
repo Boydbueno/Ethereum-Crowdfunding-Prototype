@@ -83,6 +83,10 @@ export default {
     text-decoration: underline;
   }
 
+  p {
+    color: #666;
+  }
+
   canvas {
     width: 148px;
     height: 148px;

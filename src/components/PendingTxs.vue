@@ -62,6 +62,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  p {
+    color: #666;
+  }
+
   .fade-enter-active, .fade-leave-active {
     transition: opacity .5s
   }

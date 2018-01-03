@@ -147,6 +147,10 @@ export default {
     width: 100%;
   }
 
+  p {
+    color: #666;
+  }
+
   .stat {
     .stat-number {
       display: block;
