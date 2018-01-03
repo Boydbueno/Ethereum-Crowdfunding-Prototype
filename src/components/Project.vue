@@ -6,34 +6,38 @@
         <span slot="content"><a :href="'https://ropsten.etherscan.io/address/' + crowdFundingContract.address" target="_blank">{{ crowdFundingContract.address }}</a></span>
         <i-icon size="20" type="ios-information-outline"></i-icon>
       </i-tooltip>
-      <img src="../assets/images/maassilo.jpg">
 
-      <section class="info">
-        <i-progress :percent="Math.round(value / goal * 100) || 0" hide-info></i-progress>
+      <i-row :gutter="16">
+        <i-col span="17">          
+          <img src="../assets/images/maassilo.jpg">
+        </i-col>
 
-        <div class="stat">
-          <span class="stat-number">
-            <animated-number :value="value" :decimals="1"></animated-number> ETH
-            <animated-number :value="valueInEuros" :decimals="2" :format="formatEuro"></animated-number>
-          </span>
-          <span class="stat-caption">geïnvesteerd van <strong>{{ goal }} ETH</strong> doel</span>
-        </div>
+        <i-col span="7">
+          <section class="info">
+            <i-progress :percent="Math.round(value / goal * 100) || 0" hide-info></i-progress>
 
-        <div class="stat">
-          <animated-number class="stat-number" :value="crowdFundingContract.participantsCount"></animated-number>
-          <span class="stat-caption">{{ crowdFundingContract.participantsCount === 1 ? "investeerder" : "investeerders" }}</span>
-        </div>
-      </section>
+            <div class="stat">
+              <span class="stat-number">
+                <animated-number :value="value" :decimals="1"></animated-number> ETH
+                <small>(<animated-number :value="valueInEuros" :decimals="2" :format="formatEuro"></animated-number>)</small>
+              </span>
+              <span class="stat-caption">geïnvesteerd van <strong>{{ goal }} ETH</strong> doel</span>
+            </div>
 
-      <i-card>
-        <p slot="title">Investeren</p>
-        <section class="actions">
-          <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>
-          <i-button type="primary" name="fund" @click="fund" size="large" :disabled="fundAmountInEther <= 0">Investeer</i-button>
-        </section>
-      </i-card>
+            <div class="stat">
+              <animated-number class="stat-number" :value="crowdFundingContract.participantsCount"></animated-number>
+              <span class="stat-caption">{{ crowdFundingContract.participantsCount === 1 ? "investeerder" : "investeerders" }}</span>
+            </div>
+          </section>
 
-      <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
+          <section class="actions">
+            <i-input-number size="large" :min="0.1" :step="0.1" v-model="fundAmountInEther"></i-input-number>
+            <i-button type="primary" name="fund" @click="fund" size="large" long :disabled="fundAmountInEther <= 0">Investeer</i-button>
+          </section>
+        </i-col>
+
+        <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
+      </i-row>
     </i-card>
 
   </section>
@@ -48,7 +52,7 @@ import contractStore from '@/contractStore'
 
 import AnimatedNumber from '@/components/AnimatedNumber'
 
-import { InputNumber, Button, Affix, Card, Icon, Progress, Row, Tooltip, Message, Table, Spin } from 'iview'
+import { InputNumber, Button, Affix, Card, Icon, Progress, Row, Col, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
@@ -64,7 +68,8 @@ export default {
     'i-card': Card,
     'i-icon': Icon,
     'i-spin': Spin,
-    'i-row': Row
+    'i-row': Row,
+    'i-col': Col
   },
 
   props: [

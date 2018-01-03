@@ -8,7 +8,7 @@
     </i-row>
 
     <i-row type="flex" justify="center">
-      <i-col span="12"><project :is-loading="!$store.getters.isConnectedToCorrectNetwork"></project></i-col>
+      <i-col span="16"><project :is-loading="!$store.getters.isConnectedToCorrectNetwork"></project></i-col>
     </i-row>
 
     <i-row type="flex" justify="center">
