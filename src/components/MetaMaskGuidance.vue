@@ -3,14 +3,20 @@
     <overlay :isVisible="metamaskState === 0" title="Wil je investeren?">
         
       <i-steps :current="step" direction="vertical">
-        <i-step title="Installeer MetaMask" content="MetaMask is een veilige plek om je aandelen te bewaren, dit is ook gelijk je inlog"></i-step>
+        <i-step title="Installeer MetaMask" content="MetaMask is een veilige plek om je aandelen te bewaren, dit gebruik je ook om in te loggen"></i-step>
         <i-step title="Ik heb MetaMask geïnstalleerd" content="Vernieuw de pagina om verder te gaan"></i-step>
         <i-step title="Begin met beleggen!"></i-step>
       </i-steps>
 
       <p>
-        <i-button type="primary" v-if="!isInstallClicked" long @click="installMetaMask">Installeer MetaMask</i-button>
-        <i-button type="primary" v-else long @click="refresh">Pagina vernieuwen</i-button>
+        <i-button :type="!isInstallClicked ? 'primary' : 'success'" long @click="onButtonClick">
+          <template v-if="!isInstallClicked">
+            Naar MetaMask
+          </template>
+          <template v-else>
+            Pagina vernieuwen
+          </template>
+        </i-button>
       </p>
     </overlay>
 
@@ -37,7 +43,7 @@ import { mapState, mapGetters } from 'vuex'
 import Overlay from '@/components/Overlay'
 import MetaMaskService from '@/services/MetaMaskService'
 
-import { Button, Steps, Step } from 'iview'
+import { Button, Steps, Step, LoadingBar } from 'iview'
 
 export default {
   name: 'MetaMaskGuidance',
@@ -95,18 +101,27 @@ export default {
   },
 
   methods: {
+    onButtonClick () {
+      if (!this.isInstallClicked) {
+        this.installMetaMask()
+      } else {
+        this.refresh()
+      }
+    },
+
     refresh () {
       this.step = 2
-      // Todo: Small delay for this
-      location.reload()
+      LoadingBar.start()
+
+      window.setTimeout(LoadingBar.finish, 750)
+      window.setTimeout(window.location.reload.bind(window.location), 1000)
     },
 
     installMetaMask () {
       this.isInstallClicked = true
       this.step = 1
 
-      // Todo: Small delay for this
-      // window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank')
+      window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank')
     }
   }
 }
