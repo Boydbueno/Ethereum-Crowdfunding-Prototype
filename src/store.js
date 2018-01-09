@@ -17,6 +17,7 @@ export default new Vuex.Store({
     pricePerPart: 0.1,
     partsPerSolarPanel: 6,
     wei: new BigNumber(0),
+    tokens: new BigNumber(0),
     crowdFundingContract: {
       address: '',
       goal: new BigNumber(0),
@@ -40,6 +41,14 @@ export default new Vuex.Store({
 
     isConnectedToCorrectNetwork (state) {
       return config.requiredNetwork.includes(state.connectedNetwork)
+    },
+
+    fullPanels (state) {
+      return Math.floor(state.tokens / state.partsPerSolarPanel)
+    },
+
+    leftOverPanelParts (state) {
+      return state.tokens % state.partsPerSolarPanel
     }
   },
 
@@ -94,6 +103,10 @@ export default new Vuex.Store({
 
     setWei (state, wei) {
       state.wei = wei
+    },
+
+    setTokens (state, tokens) {
+      state.tokens = tokens
     },
 
     setConnectedNetwork (state, network) {

@@ -84,7 +84,13 @@ export default {
           return
         }
 
-        this.retrieveContractInformation()
+        this.retrieveContractInformation().then(this.getSolarTokens)
+      })
+    },
+
+    getSolarTokens () {
+      contractStore.solarTokenContract.balanceOf.call(this.account, { from: this.account }).then(balance => {
+        this.$store.commit('setTokens', balance)
       })
     },
 
@@ -147,6 +153,7 @@ export default {
             Message.success('De transactie is geslaagd!')
 
             this._updateCrowdFundingContract()
+            this.getSolarTokens()
           }
         })
 

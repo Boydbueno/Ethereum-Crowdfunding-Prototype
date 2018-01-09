@@ -37,6 +37,18 @@
               <i-button type="primary" name="fund" @click="fund" size="large" long :disabled="fundAmountInEther <= 0">Investeer</i-button>
             </section>
           </i-card>
+
+          <i-card v-if="fullPanels > 0 || leftOverPanelParts > 0">
+            <p slot="title">Jouw aandeel</p>
+            <div class="tokens-wrapper">
+              <i-circle class="panel" v-for="nr in fullPanels" :key="nr" :size="56" :percent="100">
+                6/6
+              </i-circle>
+              <i-circle class="panel" v-if="leftOverPanelParts > 0" :size="56" :percent="leftOverPanelParts / partsPerSolarPanel * 100">
+                <animated-number :value="leftOverPanelParts"></animated-number>/6
+              </i-circle>
+            </div>
+          </i-card>
         </i-col>
 
         <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
@@ -49,13 +61,13 @@
 <script>
 import Web3 from 'web3'
 
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import contractStore from '@/contractStore'
 
 import AnimatedNumber from '@/components/AnimatedNumber'
 
-import { InputNumber, Button, Affix, Card, Icon, Progress, Row, Col, Tooltip, Message, Table, Spin } from 'iview'
+import { InputNumber, Button, Circle, Affix, Card, Icon, Progress, Row, Col, Tooltip, Message, Table, Spin } from 'iview'
 
 export default {
   name: 'Project',
@@ -66,6 +78,7 @@ export default {
     'i-progress': Progress,
     'i-tooltip': Tooltip,
     'i-button': Button,
+    'i-circle': Circle,
     'i-table': Table,
     'i-affix': Affix,
     'i-card': Card,
@@ -138,6 +151,11 @@ export default {
       'pendingTxs',
       'account',
       'wei'
+    ]),
+
+    ...mapGetters([
+      'fullPanels',
+      'leftOverPanelParts'
     ])
   },
 
@@ -183,6 +201,15 @@ export default {
 
   p {
     color: #666;
+  }
+
+  .tokens-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+  },
+
+  .tokens-wrapper .panel {
+    margin: 3px 2px;
   }
 
   .stat {
