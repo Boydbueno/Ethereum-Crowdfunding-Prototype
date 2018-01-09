@@ -109,7 +109,7 @@ export default {
 
         this.storeUserAccounts(accounts)
 
-        if (this.isConnectedToCorrectNetwork) {
+        if (this.isConnectedToCorrectNetwork && contractStore.solarTokenContract) {
           this.getSolarTokens()
         }
 

@@ -3,7 +3,10 @@
     <i-card>
       <p slot="title">Jouw account</p>
       <i-tooltip slot="extra" placement="bottom">
-        <span slot="content"><a :href="'https://ropsten.etherscan.io/address/' + account" target="_blank">{{ account }}</a></span>
+        <span slot="content">
+          <a :href="'https://ropsten.etherscan.io/address/' + account" target="_blank">{{ account }}</a>
+          <i-button class="copy-button" v-on:click="copyAccountAddress" type="text"><i-icon size="20" type="ios-copy-outline" color="white"></i-icon></i-button>
+        </span>
         <i-icon size="20" type="ios-information-outline"></i-icon>
       </i-tooltip>
 
@@ -24,13 +27,14 @@ import Web3 from 'web3'
 import QRCode from 'qrcode'
 import { mapState } from 'vuex'
 
-import { Tooltip, Card, Icon, Spin, Row } from 'iview'
+import { Tooltip, Card, Icon, Spin, Row, Button, Message } from 'iview'
 
 export default {
   name: 'Account',
 
   components: {
     'i-tooltip': Tooltip,
+    'i-button': Button,
     'i-card': Card,
     'i-icon': Icon,
     'i-spin': Spin,
@@ -68,6 +72,18 @@ export default {
       QRCode.toCanvas(this.$refs.qrcode, account, { margin: 2 }, (err) => {
         if (err) console.log(err)
       })
+    },
+
+    copyAccountAddress () {
+      let copyFunc = e => {
+        e.clipboardData.setData('text/plain', this.account)
+        e.preventDefault()
+        Message.success('Account adres is gekopieerd')
+      }
+
+      document.addEventListener('copy', copyFunc)
+      document.execCommand('copy')
+      document.removeEventListener('copy', copyFunc)
     }
   }
 }
@@ -76,6 +92,10 @@ export default {
 <style lang="scss" scoped>
   .balance-title, .balance {
     text-align: center;
+  }
+
+  .copy-button {
+    padding: 0;
   }
 
   a {

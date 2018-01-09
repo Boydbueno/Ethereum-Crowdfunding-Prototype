@@ -41,6 +41,15 @@
           <transition name="fade">
             <i-card v-if="fullPanels > 0 || leftOverPanelParts > 0">
               <p slot="title">Jouw aandeel</p>
+              <i-tooltip slot="extra" placement="top">
+                <span slot="content">
+                  <a :href="'https://ropsten.etherscan.io/address/' + solarTokenContract.address" target="_blank">{{ solarTokenContract.address }}</a>
+                  <i-button class="copy-button" v-on:click="copyTokenAddress" type="text">
+                    <i-icon size="20" type="ios-copy-outline" color="white"></i-icon>
+                  </i-button>
+                </span>
+                <i-icon size="20" type="ios-information-outline"></i-icon>
+              </i-tooltip>
               <div class="tokens-wrapper">
                 <i-circle class="panel" v-for="nr in fullPanels" :key="nr" :size="56" :percent="100">
                   6/6
@@ -147,6 +156,7 @@ export default {
 
     ...mapState([
       'crowdFundingContract',
+      'solarTokenContract',
       'partsPerSolarPanel',
       'euroConversion',
       'pricePerPart',
@@ -189,6 +199,18 @@ export default {
       })
     },
 
+    copyTokenAddress () {
+      let copyFunc = e => {
+        e.clipboardData.setData('text/plain', this.solarTokenContract.address)
+        e.preventDefault()
+        Message.success('Token adres is gekopieerd')
+      }
+
+      document.addEventListener('copy', copyFunc)
+      document.execCommand('copy')
+      document.removeEventListener('copy', copyFunc)
+    },
+
     formatEuro (value) {
       return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' })
     }
@@ -203,6 +225,10 @@ export default {
 
   p {
     color: #666;
+  }
+  
+  .copy-button {
+    padding: 0;
   }
 
   .tokens-wrapper {
