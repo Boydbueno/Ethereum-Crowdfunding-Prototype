@@ -46,7 +46,7 @@ truffle compile
 # Run the migrations on your local node
 truffle migrate
 
-# Run the migrations on the ropsten test network
+# Run the migrations on the ropsten test network (make sure you have set your mnemonic in config.secret.js)
 truffle migrate --network ropsten
 ```
 
