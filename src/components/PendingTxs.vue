@@ -24,7 +24,8 @@ export default {
 
   computed: {
     ...mapState([
-      'pendingTxs'
+      'pendingTxs',
+      'account'
     ])
   },
 
