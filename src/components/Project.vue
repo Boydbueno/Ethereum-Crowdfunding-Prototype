@@ -51,8 +51,8 @@
           </i-card>
         </i-col>
 
-        <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
       </i-row>
+      <i-spin size="large" fix v-if="isLoading || !crowdFundingContract.address"></i-spin>
     </i-card>
 
   </section>
