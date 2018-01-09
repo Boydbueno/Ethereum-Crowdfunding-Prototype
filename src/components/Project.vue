@@ -38,17 +38,19 @@
             </section>
           </i-card>
 
-          <i-card v-if="fullPanels > 0 || leftOverPanelParts > 0">
-            <p slot="title">Jouw aandeel</p>
-            <div class="tokens-wrapper">
-              <i-circle class="panel" v-for="nr in fullPanels" :key="nr" :size="56" :percent="100">
-                6/6
-              </i-circle>
-              <i-circle class="panel" v-if="leftOverPanelParts > 0" :size="56" :percent="leftOverPanelParts / partsPerSolarPanel * 100">
-                <animated-number :value="leftOverPanelParts"></animated-number>/6
-              </i-circle>
-            </div>
-          </i-card>
+          <transition name="fade">
+            <i-card v-if="fullPanels > 0 || leftOverPanelParts > 0">
+              <p slot="title">Jouw aandeel</p>
+              <div class="tokens-wrapper">
+                <i-circle class="panel" v-for="nr in fullPanels" :key="nr" :size="56" :percent="100">
+                  6/6
+                </i-circle>
+                <i-circle class="panel" v-if="leftOverPanelParts > 0" :size="56" :percent="leftOverPanelParts / partsPerSolarPanel * 100">
+                  <animated-number :value="leftOverPanelParts"></animated-number>/6
+                </i-circle>
+              </div>
+            </i-card>
+          </transition>
         </i-col>
 
       </i-row>

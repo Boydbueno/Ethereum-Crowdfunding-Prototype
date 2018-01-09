@@ -109,6 +109,10 @@ export default {
 
         this.storeUserAccounts(accounts)
 
+        if (this.isConnectedToCorrectNetwork) {
+          this.getSolarTokens()
+        }
+
         return this.getAccountBalance().then(result => {
           if (this.wei === result) return
 
