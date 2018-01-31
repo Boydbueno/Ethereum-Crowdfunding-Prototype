@@ -6,6 +6,7 @@ const merge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+const openInEditor = require('launch-editor-middleware')
 const portfinder = require('portfinder')
 
 const HOST = process.env.HOST
@@ -20,6 +21,9 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // these devServer options should be customized in /config/index.js
   devServer: {
+    before (app) {
+      app.use('/__open-in-editor', openInEditor())
+    },
     clientLogLevel: 'warning',
     historyApiFallback: true,
     hot: true,
