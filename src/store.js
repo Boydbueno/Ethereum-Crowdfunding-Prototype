@@ -9,7 +9,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    euroConversion: 726,
+    euroConversion: 886,
     account: '',
     connectedNetwork: 'private',
     isLoggedIntoMetaMask: true,
